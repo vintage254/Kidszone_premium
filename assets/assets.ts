@@ -1,0 +1,103 @@
+// Assets configuration for KidsZone Premium
+// All images are referenced from public/start/ directory
+
+export const assets = {
+  // Banner images
+  jbl_soundbox_image: "/start/jbl_soundbox.png",
+  
+  // Featured product images
+  girl_with_headphone_image: "/start/girl_with_headphone.png",
+  girl_with_earphone_image: "/start/girl_with_earphone.png",
+  boy_with_laptop_image: "/start/boy_with_laptop.png",
+  
+  // Header slider images
+  header_slide_1: "/start/header_slide_1.jpeg",
+  header_slide_2: "/start/header_slide_2.jpeg",
+  header_slide_3: "/start/header_slide_3.jpg",
+  
+  // Product images
+  product_placeholder: "/start/product_placeholder.png",
+  
+  // Navigation icons
+  search_icon: "/start/search_icon.svg",
+  profile_icon: "/start/profile_icon.png",
+  cart_icon: "/start/cart_icon.svg",
+  menu_icon: "/start/menu_icon.svg",
+  
+  // Other assets
+  logo: "/start/logo.svg",
+  arrow_icon: "/start/arrow_icon.svg",
+  star_icon: "/start/star_icon.svg",
+  star_dull_icon: "/start/star_dull_icon.svg",
+  bin_icon: "/start/bin_icon.png",
+  support_img: "/start/support_img.png",
+  quality_icon: "/start/quality_icon.png",
+  exchange_icon: "/start/exchange_icon.png",
+  contact_img: "/start/contact_img.png",
+  about_img: "/start/about_img.png",
+  cross_icon: "/start/cross_icon.png",
+  dropdown_icon: "/start/dropdown_icon.png",
+  hero_img: "/start/hero_img.png",
+  p_img1: "/start/p_img1.png",
+  p_img2_1: "/start/p_img2_1.png",
+  p_img2_2: "/start/p_img2_2.png",
+  p_img2_3: "/start/p_img2_3.png",
+  p_img2_4: "/start/p_img2_4.png",
+  p_img3: "/start/p_img3.png",
+  p_img4: "/start/p_img4.png",
+  p_img5: "/start/p_img5.png",
+  p_img6: "/start/p_img6.png",
+  p_img7: "/start/p_img7.png",
+  p_img8: "/start/p_img8.png",
+  p_img9: "/start/p_img9.png",
+  p_img10: "/start/p_img10.png",
+  p_img11: "/start/p_img11.png",
+  p_img12: "/start/p_img12.png",
+  p_img13: "/start/p_img13.png",
+  p_img14: "/start/p_img14.png",
+  p_img15: "/start/p_img15.png",
+  p_img16: "/start/p_img16.png",
+  p_img17: "/start/p_img17.png",
+  p_img18: "/start/p_img18.png",
+  p_img19: "/start/p_img19.png",
+  p_img20: "/start/p_img20.png",
+  p_img21: "/start/p_img21.png",
+  p_img22: "/start/p_img22.png",
+  p_img23: "/start/p_img23.png",
+  p_img24: "/start/p_img24.png",
+  p_img25: "/start/p_img25.png",
+  p_img26: "/start/p_img26.png",
+  p_img27: "/start/p_img27.png",
+  p_img28: "/start/p_img28.png",
+  p_img29: "/start/p_img29.png",
+  p_img30: "/start/p_img30.png",
+  p_img31: "/start/p_img31.png",
+  p_img32: "/start/p_img32.png",
+  p_img33: "/start/p_img33.png",
+  p_img34: "/start/p_img34.png",
+  p_img35: "/start/p_img35.png",
+  p_img36: "/start/p_img36.png",
+  p_img37: "/start/p_img37.png",
+  p_img38: "/start/p_img38.png",
+  p_img39: "/start/p_img39.png",
+  p_img40: "/start/p_img40.png",
+  p_img41: "/start/p_img41.png",
+  p_img42: "/start/p_img42.png",
+  p_img43: "/start/p_img43.png",
+  p_img44: "/start/p_img44.png",
+  p_img45: "/start/p_img45.png",
+  p_img46: "/start/p_img46.png",
+  p_img47: "/start/p_img47.png",
+  p_img48: "/start/p_img48.png",
+  p_img49: "/start/p_img49.png",
+  p_img50: "/start/p_img50.png",
+  p_img51: "/start/p_img51.png",
+  p_img52: "/start/p_img52.png",
+  arrow_icon_white: "/start/arrow_icon_white.svg",
+  md_controller_image: "/start/md_controller_image.png",
+  sm_controller_image: "/start/sm_controller_image.png",
+    redirect_icon: "/start/redirect_icon.svg",
+  heart_icon_red: "/start/heart_icon_red.png"
+} as const;
+
+export type AssetKey = keyof typeof assets;
