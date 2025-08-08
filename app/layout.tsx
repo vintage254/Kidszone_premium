@@ -1,38 +1,55 @@
-import React, { ReactNode } from "react";
+import type { Metadata } from "next";
+import "./globals.css";
+import { Toaster } from "@/components/ui/toaster";
+
+import localFont from "next/font/local";
+import { ReactNode } from "react";
+import { SessionProvider } from "next-auth/react";
 import { auth } from "@/auth";
-import { redirect } from "next/navigation";
+import { AppContextProvider } from "@/context/AppContext";
 
-import "@/styles/admin.css";
-import Sidebar from "@/components/admin/Sidebar";
-import Header from "@/components/admin/Header";
-import { db } from "@/database/drizzle";
-import { users } from "@/database/schema";
-import { eq } from "drizzle-orm";
+const ibmPlexSans = localFont({
+  src: [
+    { path: "/fonts/IBMPlexSans-Regular.ttf", weight: "400", style: "normal" },
+    { path: "/fonts/IBMPlexSans-Medium.ttf", weight: "500", style: "normal" },
+    { path: "/fonts/IBMPlexSans-SemiBold.ttf", weight: "600", style: "normal" },
+    { path: "/fonts/IBMPlexSans-Bold.ttf", weight: "700", style: "normal" },
+  ],
+});
 
-const Layout = async ({ children }: { children: ReactNode }) => {
+const bebasNeue = localFont({
+  src: [
+    { path: "/fonts/BebasNeue-Regular.ttf", weight: "400", style: "normal" },
+  ],
+  variable: "--bebas-neue",
+});
+
+export const metadata: Metadata = {
+  title: "Kidszone_Premium",
+  description:
+    "Kidszone_Premium is your ultimate destination for high-quality kids’ fashion, toys, accessories, and essentials. From newborns to pre-teens, we offer a wide range of premium products that are safe, stylish, and fun.",
+  icons: {
+    icon: '/images/favicon.ico',
+  },
+};
+
+const RootLayout = async ({ children }: { children: ReactNode }) => {
   const session = await auth();
 
-  if (!session?.user?.id) redirect("/sign-in");
-
-  const isAdmin = await db
-    .select({ role: users.role })
-    .from(users)
-    .where(eq(users.id, session.user.id))
-    .limit(1)
-    .then((res) => res[0]?.role === "ADMIN" || res[0]?.role === "SELLER");
-
-  if (!isAdmin) redirect("/");
-
   return (
-    <main className="flex min-h-screen w-full flex-row">
-      <Sidebar session={session} />
-
-      <div className="admin-container">
-        <Header session={session} />
-        {children}
-      </div>
-    </main>
+    <html lang="en">
+      <SessionProvider session={session}>
+        <body
+          className={`${ibmPlexSans.className} ${bebasNeue.variable} antialiased`}
+        >
+          <AppContextProvider>
+            {children}
+          </AppContextProvider>
+          <Toaster />
+        </body>
+      </SessionProvider>
+    </html>
   );
 };
 
-export default Layout
+export default RootLayout;

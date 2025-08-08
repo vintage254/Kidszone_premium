@@ -4,7 +4,7 @@ import { CldUploadWidget } from 'next-cloudinary';
 import { Button } from '../ui/button';
 import { Plus, X } from 'lucide-react';
 import Image from 'next/image';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 interface ImageUploaderProps {
   value: string[];
@@ -12,54 +12,43 @@ interface ImageUploaderProps {
 }
 
 const ImageUploader = ({ value = [], onChange }: ImageUploaderProps) => {
-  // Ensure we always have an array
-  const imageUrls = Array.isArray(value) ? value : [];
+  // Create ref to track current value
+  const currentValueRef = useRef<string[]>([]);
   
-  console.log('📊 ImageUploader - Images count:', imageUrls.length);
+  // Keep ref updated with latest value
+  useEffect(() => {
+    currentValueRef.current = Array.isArray(value) ? value : [];
+  }, [value]);
 
   const handleUpload = useCallback((result: any, slotIndex?: number) => {
     if (result?.info?.secure_url) {
       const newUrl = result.info.secure_url;
-      const currentImages = Array.isArray(value) ? value : [];
-      
-      console.log('🔄 Before upload - Current images from value prop:', currentImages);
-      console.log('📤 New image URL:', newUrl);
+      const currentImages = [...currentValueRef.current]; // Use ref instead of value
       
       // Prevent duplicates
-      if (currentImages.includes(newUrl)) {
-        console.log('❌ Duplicate image detected, skipping');
-        return;
-      }
+      if (currentImages.includes(newUrl)) return;
 
-      let newImages: string[];
-      
       if (typeof slotIndex === 'number' && slotIndex < currentImages.length) {
         // Replace specific slot
-        newImages = [...currentImages];
-        newImages[slotIndex] = newUrl;
-        console.log('🔄 Replacing slot', slotIndex, 'with new image');
+        currentImages[slotIndex] = newUrl;
       } else {
         // Add to the end
-        newImages = [...currentImages, newUrl];
-        console.log('➕ Adding new image to end');
+        currentImages.push(newUrl);
       }
       
-      console.log('✅ Calling onChange with new images array:', newImages);
-      onChange(newImages);
+      onChange(currentImages);
     }
-  }, [value, onChange]);
+  }, [onChange]);
 
   const handleRemove = useCallback((urlToRemove: string) => {
-    const currentImages = Array.isArray(value) ? value : [];
-    const newImages = currentImages.filter(url => url !== urlToRemove);
-    onChange(newImages);
-  }, [value, onChange]);
+    onChange(currentValueRef.current.filter(url => url !== urlToRemove));
+  }, [onChange]);
 
   // Create array of 4 slots
   const slots = Array.from({ length: 4 }, (_, index) => ({
     index,
-    url: imageUrls[index] || null,
-    isEmpty: !imageUrls[index]
+    url: value[index] || null,
+    isEmpty: !value[index]
   }));
 
   return (
@@ -101,7 +90,7 @@ const ImageUploader = ({ value = [], onChange }: ImageUploaderProps) => {
                   maxFileSize: 5000000, // 5MB
                   sources: ["local", "camera"],
                 }}
-                onSuccess={(result) => handleUpload(result)}
+                onSuccess={(result) => handleUpload(result, slot.index)}
                 onClose={() => {
                   document.body.style.overflow = "auto";
                 }}

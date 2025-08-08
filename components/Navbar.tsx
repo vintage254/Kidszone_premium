@@ -68,7 +68,7 @@ const Navbar = () => {
             <div className="relative overflow-hidden rounded-xl">
               <Image 
                 className="w-12 transition-transform duration-300 group-hover:scale-110" 
-                src={assets.logo} 
+                src="/images/Kidz-logo.png" 
                 alt="KidsZone Logo" 
                 width={48} 
                 height={48} 
