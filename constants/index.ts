@@ -2,37 +2,43 @@
 
 import {
   Home,
+  Package,
+  ShoppingCart,
   Users,
-  Briefcase,
-  FileText,
-  UserCheck,
+  BarChart3,
+  Settings,
 } from "lucide-react";
 
 export const adminSideBarLinks = [
   {
     icon: Home,
     route: "/admin",
-    text: "Home",
+    text: "Dashboard",
+  },
+  {
+    icon: Package,
+    route: "/admin/products",
+    text: "Products",
+  },
+  {
+    icon: ShoppingCart,
+    route: "/admin/orders",
+    text: "Orders",
   },
   {
     icon: Users,
-    route: "/admin/users",
-    text: "All Users",
+    route: "/admin/customers",
+    text: "Customers",
   },
   {
-    icon: Briefcase,
-    route: "/admin/jobs",
-    text: "All Jobs",
+    icon: BarChart3,
+    route: "/admin/analytics",
+    text: "Analytics",
   },
   {
-    icon: FileText,
-    route: "/admin/applications",
-    text: "Job Applications",
-  },
-  {
-    icon: UserCheck,
-    route: "/admin/account-requests",
-    text: "Account Requests",
+    icon: Settings,
+    route: "/admin/settings",
+    text: "Settings",
   },
 ];
 
