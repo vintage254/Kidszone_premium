@@ -8,26 +8,27 @@ import { signIn, signOut } from "@/auth";
 import { z } from "zod";
 import { signInSchema, signUpSchema } from "@/lib/validations";
 
+import { AuthError } from "next-auth";
+
 export const signInWithCredentials = async (
   params: z.infer<typeof signInSchema>
 ) => {
-  const { email, password } = params;
-
   try {
-    const result = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
+    await signIn("credentials", {
+      ...params,
+      redirectTo: "/",
     });
-
-    if (result?.error) {
-      return { success: false, error: result.error };
-    }
-
     return { success: true };
   } catch (error) {
-    console.log(error, "Signin error");
-    return { success: false, error: "Signin error" };
+    if (error instanceof AuthError) {
+      switch (error.type) {
+        case "CredentialsSignin":
+          return { success: false, error: "Invalid email or password" };
+        default:
+          return { success: false, error: "An unknown error occurred" };
+      }
+    }
+    throw error;
   }
 };
 

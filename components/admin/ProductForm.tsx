@@ -18,7 +18,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { createProduct, updateProduct } from "@/lib/actions/product.actions";
 import ImageUploader from "./ImageUploader";
 import type { Product } from "@/database/schema";
-import { useTransition } from "react";
+import { useTransition, useState, useEffect } from "react";
 import { toast } from "sonner";
 import { productFormSchema, type ProductFormValues } from "@/lib/validators/product";
 
@@ -29,13 +29,15 @@ interface ProductFormProps {
 const ProductForm = ({ product }: ProductFormProps) => {
   const [isPending, startTransition] = useTransition();
 
-  const defaultImages = [];
+  // Calculate default images
+  const defaultImages: string[] = [];
   if (product) {
     if (product.image1) defaultImages.push(product.image1);
     if (product.image2) defaultImages.push(product.image2);
     if (product.image3) defaultImages.push(product.image3);
     if (product.image4) defaultImages.push(product.image4);
   }
+  
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productFormSchema),
     defaultValues: {
@@ -48,6 +50,12 @@ const ProductForm = ({ product }: ProductFormProps) => {
       isBanner: product?.isBanner || false,
     },
   });
+
+  // Watch the images field for debugging
+  const watchedImages = form.watch("images");
+  useEffect(() => {
+    console.log("👀 Watched images changed:", watchedImages);
+  }, [watchedImages]);
 
   const onSubmit = (values: ProductFormValues) => {
     startTransition(async () => {
@@ -135,7 +143,12 @@ const ProductForm = ({ product }: ProductFormProps) => {
               <FormControl>
                 <ImageUploader 
                   value={field.value || []} 
-                  onChange={(urls) => field.onChange(urls)} 
+                  onChange={(newImages) => {
+                    console.log('🔄 ProductForm - onChange called with:', newImages);
+                    console.log('📊 Current field value:', field.value);
+                    console.log('✅ Setting new field value:', newImages);
+                    field.onChange(newImages);
+                  }}
                 />
               </FormControl>
               <FormMessage />

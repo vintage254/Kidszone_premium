@@ -6,6 +6,7 @@ import { desc, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { auth } from "@/auth";
+import { updateOrderSchema } from "@/lib/schemas/order.schemas";
 
 export async function getOrders() {
   try {
@@ -31,10 +32,7 @@ export async function getOrders() {
   }
 }
 
-export const updateOrderSchema = z.object({
-  status: z.enum(orders.status.enumValues),
-  trackingNumber: z.string().optional(),
-});
+
 
 export async function updateOrder(orderId: string, values: z.infer<typeof updateOrderSchema>) {
   const validatedFields = updateOrderSchema.safeParse(values);

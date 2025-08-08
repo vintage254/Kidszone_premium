@@ -30,7 +30,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { updateOrder, updateOrderSchema } from "@/lib/actions/order.actions";
+import { updateOrder } from "@/lib/actions/order.actions";
+import { updateOrderSchema } from "@/lib/schemas/order.schemas";
 import { orders } from "@/database/schema";
 import type { OrderData } from "./OrdersTable";
 

@@ -25,10 +25,10 @@ export async function createProduct(values: ProductFormValues) {
     await db.insert(products).values({
       ...rest,
       price: String(price),
-      image1: images[0],
-      image2: images[1],
-      image3: images[2],
-      image4: images[3],
+      image1: images[0] || "",
+      image2: images[1] || "",
+      image3: images[2] || "",
+      image4: images[3] || "",
       isFeatured: isFeatured || false,
       isBanner: isBanner || false,
     });
@@ -74,10 +74,10 @@ export async function updateProduct(productId: string, values: ProductFormValues
     await db.update(products).set({
       ...rest,
       price: String(price),
-      image1: images[0],
-      image2: images[1],
-      image3: images[2],
-      image4: images[3],
+      image1: images[0] || "",
+      image2: images[1] || "",
+      image3: images[2] || "",
+      image4: images[3] || "",
       isFeatured: isFeatured || false,
       isBanner: isBanner || false,
     }).where(eq(products.id, productId));

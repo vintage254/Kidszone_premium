@@ -47,12 +47,28 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     signIn: "/sign-in",
   },
   callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-        token.role = (user as any).role;
-      }
+    async jwt({ token }) {
+      if (!token.sub) return token;
+
+      const existingUser = await db.query.users.findFirst({
+        where: eq(users.id, token.sub),
+      });
+
+      if (!existingUser) return token;
+
+      token.role = existingUser.role;
       return token;
+    },
+    async session({ session, token }) {
+      if (token.sub && session.user) {
+        session.user.id = token.sub;
+      }
+
+      if (token.role && session.user) {
+        session.user.role = token.role as "ADMIN" | "USER" | "SELLER";
+      }
+
+      return session;
     },
     async signIn({ user, account }) {
       if (account?.provider === "google") {
@@ -64,21 +80,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         });
 
         if (!existingUser) {
-          const newUser = await db.insert(users).values({
+          await db.insert(users).values({
             fullName: user.name!,
             email: user.email!,
             refNo: createId(),
-          }).returning();
+          });
         }
       }
       return true;
-    },
-    async session({ session, token }) {
-      if (token && session.user) {
-        session.user.id = token.id as string;
-        (session.user as any).role = token.role;
-      }
-      return session;
     },
   },
 });
