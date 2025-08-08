@@ -13,13 +13,7 @@ export interface Product {
   bestseller: boolean;
 }
 
-export interface User {
-  _id: string;
-  name: string;
-  email: string;
-  phone?: string;
-  address?: string;
-}
+
 
 export interface CartItem {
   [itemId: string]: {
@@ -27,20 +21,7 @@ export interface CartItem {
   };
 }
 
-export interface AppContextType {
-  products: Product[];
-  currency: string;
-  router: any;
-  userData: User | false;
-  isSeller: boolean;
-  cartItems: CartItem;
-  addToCart: (itemId: string, size?: string) => void;
-  updateQuantity: (itemId: string, size: string, quantity: number) => void;
-  getCartCount: () => number;
-  getCartAmount: () => number;
-  fetchProductData: () => Promise<void>;
-  fetchUserData: () => Promise<void>;
-}
+
 
 // Dummy data for development
 export const productsDummyData: Product[] = [
@@ -69,10 +50,4 @@ export const productsDummyData: Product[] = [
   }
 ];
 
-export const userDummyData: User = {
-  _id: "user1",
-  name: "John Doe",
-  email: "john@example.com",
-  phone: "+1234567890",
-  address: "123 Main St, City, Country"
-};
+

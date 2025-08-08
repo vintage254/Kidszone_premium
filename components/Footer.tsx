@@ -23,15 +23,7 @@ import {
 } from 'lucide-react';
 
 const Footer = () => {
-  // Define colors from the palette - Updated to match site's brown/orange theme
-  const colors = {
-    charcoal: '#1A1A1A', // A bit lighter than pure black for depth
-    white: '#FFFFFF',
-    orange: '#EA580C', // bg-orange-600 equivalent
-    tan: '#A67C52',
-    lightGray: '#E5E5E5',
-    coolGray: '#7D7D7D',
-  };
+
   const [email, setEmail] = useState('');
   const [isSubscribed, setIsSubscribed] = useState(false);
 
@@ -109,19 +101,19 @@ const Footer = () => {
 
   const features = [
     {
-      icon: <Package style={{ color: colors.tan }} className="w-5 h-5" />,
+      icon: <Package className="w-5 h-5 text-white" />,
       text: "Exclusive Drops"
     },
     {
-      icon: <Truck style={{ color: colors.tan }} className="w-5 h-5" />,
+      icon: <Truck className="w-5 h-5 text-white" />,
       text: "Fast Shipping"
     },
     {
-      icon: <Tag style={{ color: colors.tan }} className="w-5 h-5" />,
+      icon: <Tag className="w-5 h-5 text-white" />,
       text: "Member-Only Sales"
     },
     {
-      icon: <Gift style={{ color: colors.tan }} className="w-5 h-5" />,
+      icon: <Gift className="w-5 h-5 text-white" />,
       text: "Special Offers"
     }
   ];
@@ -129,8 +121,7 @@ const Footer = () => {
   return (
     <footer 
       id="contact"
-      style={{ backgroundColor: colors.charcoal, color: colors.white }}
-      className="relative overflow-hidden"
+      className="bg-gray-900 text-white pt-12 pb-8 px-4 sm:px-6 lg:px-8"
     >
       {/* Subtle texture overlay */}
       <div 
@@ -142,7 +133,7 @@ const Footer = () => {
       
       <div className="relative z-10">
         {/* Newsletter Section */}
-        <div style={{ borderColor: colors.coolGray }} className="border-b border-opacity-20">
+        <div className="border-b border-gray-700 border-opacity-20">
           <div className="max-w-7xl mx-auto px-4 py-20">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
               {/* VIP Content */}
@@ -153,12 +144,12 @@ const Footer = () => {
                 className="text-center lg:text-left"
               >
                 <div className="flex items-center justify-center lg:justify-start mb-6">
-                  <Sparkles style={{ color: colors.tan }} className="w-7 h-7 mr-3" />
-                  <h3 className="text-3xl md:text-4xl font-bold" style={{ color: colors.white }}>
-                    Become a <span style={{ color: colors.tan }}>Style Insider</span>
+                  <Sparkles className="w-7 h-7 mr-3 text-secondary" />
+                  <h3 className="text-3xl md:text-4xl font-bold text-white">
+                    Become a <span className="text-secondary">Style Insider</span>
                   </h3>
                 </div>
-                <p style={{ color: colors.lightGray }} className="text-xl mb-8 leading-relaxed">
+                <p className="text-xl mb-8 leading-relaxed text-gray-400">
                   Get exclusive access to new drops, special discounts, and be the first to know about our latest collaborations and events.
                 </p>
                 
@@ -170,13 +161,12 @@ const Footer = () => {
                       initial={{ opacity: 0, y: 20 }}
                       whileInView={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.5, delay: index * 0.1 }}
-                      style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)', borderColor: 'rgba(255, 255, 255, 0.1)', color: colors.lightGray }}
-                      className="flex items-center text-sm backdrop-blur-sm rounded-xl p-3 border"
+                      className="flex items-center text-sm bg-gray-800 rounded-xl p-3 border border-gray-700"
                     >
-                      <div style={{ backgroundColor: 'rgba(166, 124, 82, 0.1)' }} className="p-2 rounded-lg mr-3">
+                      <div className="p-2 rounded-lg mr-3 bg-secondary">
                         {feature.icon}
                       </div>
-                      <span className="font-medium">{feature.text}</span>
+                      <span className="font-medium text-gray-400">{feature.text}</span>
                     </motion.div>
                   ))}
                 </div>
@@ -187,20 +177,16 @@ const Footer = () => {
                 initial={{ opacity: 0, x: 50 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
-                style={{ 
-                  backgroundColor: 'rgba(255, 255, 255, 0.02)', 
-                  borderColor: 'rgba(255, 255, 255, 0.1)',
-                }}
-                className="backdrop-blur-lg rounded-3xl p-10 border hover:border-tan-500/50 transition-all duration-300 shadow-2xl"
+                className="backdrop-blur-lg rounded-3xl p-10 border border-gray-700 hover:border-orange-400/50 transition-all duration-300 shadow-2xl"
               >
                 <div className="text-center mb-8">
                   <div className="flex items-center justify-center mb-4">
-                    <Gift style={{ color: colors.orange }} className="w-8 h-8 mr-2" />
-                    <h4 className="text-2xl font-bold" style={{ color: colors.white }}>
+                    <Gift className="w-8 h-8 mr-2 text-primary" />
+                    <h4 className="text-2xl font-bold text-white">
                       Get 15% Off Your First Order
                     </h4>
                   </div>
-                  <p style={{ color: colors.coolGray }}>Subscribe and save on your first purchase</p>
+                  <p className="text-gray-500">Subscribe and save on your first purchase</p>
                 </div>
 
                 <form onSubmit={handleNewsletterSubmit} className="space-y-6">
@@ -210,23 +196,17 @@ const Footer = () => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="Enter your email for exclusive offers"
-                      style={{ 
-                        backgroundColor: 'rgba(255, 255, 255, 0.05)', 
-                        borderColor: 'rgba(255, 255, 255, 0.2)', 
-                        color: colors.white 
-                      }}
-                      className="w-full px-6 py-5 backdrop-blur-sm border rounded-2xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#A67C52] focus:border-[#A67C52] transition-all duration-300"
+                      className="w-full px-6 py-5 bg-gray-800 border border-gray-700 rounded-2xl placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-300"
                       required
                     />
-                    <Mail style={{ color: colors.coolGray }} className="absolute right-6 top-1/2 transform -translate-y-1/2 w-5 h-5" />
+                    <Mail className="absolute right-6 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500" />
                   </div>
                   
                   <motion.button
                     type="submit"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    style={{ backgroundColor: colors.orange, color: colors.white }}
-                    className="w-full py-5 rounded-2xl font-semibold flex items-center justify-center space-x-3 transition-all duration-300 shadow-lg hover:shadow-xl hover:bg-opacity-90"
+                    className="w-full py-5 rounded-2xl font-semibold flex items-center justify-center space-x-3 transition-all duration-300 shadow-lg hover:shadow-xl bg-primary hover:bg-opacity-90 text-white"
                   >
                     {isSubscribed ? (
                       <>
@@ -243,7 +223,7 @@ const Footer = () => {
                   </motion.button>
                 </form>
                 
-                <p style={{ color: colors.coolGray }} className="text-xs mt-6 text-center">
+                <p className="text-xs mt-6 text-center text-gray-500">
                   Instant 15% off • Early access to new drops • Insider-only promotions
                 </p>
               </motion.div>
@@ -262,11 +242,11 @@ const Footer = () => {
               className="lg:col-span-2"
             >
               <div className="flex items-center mb-8">
-                <h2 className="text-3xl font-bold" style={{ color: colors.white }}>
-                  KidsZone <span style={{ color: colors.orange }}>Premium</span>
+                <h2 className="text-3xl font-bold text-white">
+                  KidsZone <span className="text-primary">Premium</span>
                 </h2>
               </div>
-              <p style={{ color: colors.lightGray }} className="mb-8 text-lg leading-relaxed">
+              <p className="mb-8 text-lg leading-relaxed text-gray-400">
                 Your premium destination for electronics, gaming gear, and tech accessories. We bring you the latest gadgets and devices for kids and families.
               </p>
               
@@ -279,8 +259,7 @@ const Footer = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     whileHover={{ scale: 1.15, y: -5 }}
-                    style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)', borderColor: 'rgba(255, 255, 255, 0.1)' }}
-                    className={`p-4 backdrop-blur-sm border rounded-2xl transition-all duration-300 hover:text-white hover:bg-tan-500/20`}
+                    className={`p-4 backdrop-blur-sm border rounded-2xl transition-all duration-300 hover:text-white hover:bg-primary/20`}
                   >
                     {social.icon} 
                   </motion.a>
@@ -294,8 +273,8 @@ const Footer = () => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
             >
-              <h3 className="text-xl font-semibold mb-8 flex items-center" style={{ color: colors.white }}>
-                <Tag style={{ color: colors.tan }} className="w-6 h-6 mr-3" />
+              <h3 className="text-xl font-semibold mb-8 flex items-center">
+                <Tag className="w-6 h-6 mr-3 text-secondary" />
                 Shop
               </h3>
               <ul className="space-y-4">
@@ -303,10 +282,9 @@ const Footer = () => {
                   <li key={index}>
                     <a
                       href={link.href}
-                      style={{ color: colors.lightGray }}
-                      className="hover-text-tan transition-colors duration-300 flex items-center group"
+                      className="hover:text-primary transition-colors duration-300 flex items-center group"
                     >
-                      <div style={{ backgroundColor: colors.tan }} className="w-2 h-2 rounded-full mr-3 opacity-50 group-hover:opacity-100 transition-opacity duration-300"></div>
+                      <div className="w-2 h-2 rounded-full mr-3 bg-primary opacity-50 group-hover:opacity-100 transition-opacity duration-300"></div>
                       <span className="group-hover:translate-x-1 transition-transform duration-300">
                         {link.name}
                       </span>
@@ -322,8 +300,8 @@ const Footer = () => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4 }}
             >
-              <h3 className="text-xl font-semibold mb-8 flex items-center" style={{ color: colors.white }}>
-                <ArrowRight style={{ color: colors.tan }} className="w-6 h-6 mr-3" />
+              <h3 className="text-xl font-semibold mb-8 flex items-center">
+                <ArrowRight className="w-6 h-6 mr-3 text-secondary" />
                 Quick Links
               </h3>
               <ul className="space-y-4">
@@ -331,10 +309,9 @@ const Footer = () => {
                   <li key={index}>
                     <a
                       href={link.href}
-                      style={{ color: colors.lightGray }}
-                      className="hover-text-tan transition-colors duration-300 flex items-center group"
+                      className="hover:text-primary transition-colors duration-300 flex items-center group"
                     >
-                      <div style={{ backgroundColor: colors.tan }} className="w-2 h-2 rounded-full mr-3 opacity-50 group-hover:opacity-100 transition-opacity duration-300"></div>
+                      <div className="w-2 h-2 rounded-full mr-3 bg-primary opacity-50 group-hover:opacity-100 transition-opacity duration-300"></div>
                       <span className="group-hover:translate-x-1 transition-transform duration-300">
                         {link.name}
                       </span>
@@ -355,16 +332,15 @@ const Footer = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 whileHover={{ scale: 1.05, y: -5 }}
-                style={{ backgroundColor: 'rgba(255, 255, 255, 0.02)', borderColor: 'rgba(255, 255, 255, 0.1)' }}
-                className="backdrop-blur-sm border rounded-2xl p-6 hover:border-tan-500/50 transition-all duration-300 group"
+                className="backdrop-blur-sm border rounded-2xl p-6 hover:border-primary/50 transition-all duration-300 group"
               >
                 <div className="flex items-center space-x-4">
-                  <div style={{ backgroundColor: 'rgba(166, 124, 82, 0.1)' }} className="p-3 rounded-xl transition-all duration-300">
-                    {React.cloneElement(info.icon, { style: { color: colors.tan } })}
+                  <div className="p-3 rounded-xl bg-primary">
+                    {React.cloneElement(info.icon, { className: "text-white" })}
                   </div>
                   <div>
-                    <p style={{ color: colors.coolGray }} className="text-sm mb-1">{info.label}</p>
-                    <p style={{ color: colors.white }} className="font-medium">{info.value}</p>
+                    <p className="text-sm mb-1 text-gray-500">{info.label}</p>
+                    <p className="font-medium text-white">{info.value}</p>
                   </div>
                 </div>
               </motion.a>
@@ -373,20 +349,20 @@ const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div style={{ borderColor: colors.coolGray }} className="border-t border-opacity-20 py-8">
+        <div className="border-t border-gray-700 border-opacity-20 py-8">
           <div className="max-w-7xl mx-auto px-4">
             <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-              <p style={{ color: colors.coolGray }} className="text-sm">
-                {new Date().getFullYear()} The Street Clothing. All Rights Reserved.
+              <p className="text-sm text-gray-500">
+                &copy; {new Date().getFullYear()} KidsZone Premium. All Rights Reserved. Crafted with <Heart className="inline w-4 h-4 text-primary" /> for the next generation.
               </p>
-              <div style={{ color: colors.coolGray }} className="flex items-center space-x-8 text-sm">
-                <a href="/privacy" className="hover-text-tan transition-colors duration-300">
+              <div className="flex items-center space-x-8 text-sm text-gray-500">
+                <a href="/privacy" className="hover:text-primary transition-colors duration-300">
                   Privacy Policy
                 </a>
-                <a href="/terms" className="hover-text-tan transition-colors duration-300">
+                <a href="/terms" className="hover:text-primary transition-colors duration-300">
                   Terms of Service
                 </a>
-                <a href="/shipping" className="hover-text-tan transition-colors duration-300">
+                <a href="/shipping" className="hover:text-primary transition-colors duration-300">
                   Shipping Policy
                 </a>
               </div>

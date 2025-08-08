@@ -1,0 +1,65 @@
+{
+  "project": "Kids Shop E-commerce Website",
+  "tech_stack": {
+    "frontend": "Next.js (App Router)",
+    "backend": "Next.js API Routes",
+    "auth": {
+      "provider": "NextAuth.js (credentials)",
+      "session": "JWT",
+      "roles": ["ADMIN"],
+      "middleware_protected": true
+    },
+    "database": {
+      "type": "PostgreSQL",
+      "provider": "Neon",
+      "url_env_key": "DATABASE_URL"
+    },
+    "image_upload": "Cloudinary",
+    "payment_integration": ["Stripe", "PayPal"]
+  },
+  "features": {
+    "remove": [
+      "Job folder and related job detail pages",
+      "User statuses: PENDING, APPROVED, REJECTED",
+      "Bidding functionality"
+    ],
+    "add": {
+      "Product Management": {
+        "admin_can": [
+          "Upload new products",
+          "Add 4 images per product (stored via Cloudinary)",
+          "Set product price, description, category"
+        ],
+        "product_detail_page": {
+          "displays": "4 images (1 main image + 3 thumbnails)"
+        },
+        "routing": {
+          "folder": "products",
+          "detail_page": "/products/[id]"
+        }
+      },
+      "Orders": {
+        "admin_can": [
+          "View completed/paid orders",
+          "Manually add shipping tracking number"
+        ],
+        "buyer_can": [
+          "View tracking number after order is paid"
+        ],
+        "order_statuses": ["PENDING", "PAID", "SHIPPED", "DELIVERED"]
+      },
+      "Admin Dashboard": {
+        "shows": [
+          "Total number of products",
+          "Total orders",
+          "Paid orders",
+          "Delivered orders",
+          "Revenue overview"
+        ]
+      }
+    }
+  },
+  "design": {
+    "theme": "Use existing color scheme of app"
+  }
+}

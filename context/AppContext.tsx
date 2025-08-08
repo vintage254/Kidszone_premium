@@ -1,7 +1,8 @@
 'use client';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { AppContextType, Product, User, CartItem, productsDummyData, userDummyData } from '../types';
+import { AppContextType, Product, User, CartItem, productsDummyData } from '../types';
 
 export const AppContext = createContext<AppContextType | null>(null);
 
@@ -22,17 +23,16 @@ export const AppContextProvider = ({ children }: AppContextProviderProps) => {
   const router = useRouter();
 
   const [products, setProducts] = useState<Product[]>([]);
+  const { data: session } = useSession();
   const [userData, setUserData] = useState<User | false>(false);
-  const [isSeller, setIsSeller] = useState(true);
+  const [isSeller, setIsSeller] = useState(false);
   const [cartItems, setCartItems] = useState<CartItem>({});
 
   const fetchProductData = async () => {
     setProducts(productsDummyData);
   };
 
-  const fetchUserData = async () => {
-    setUserData(userDummyData);
-  };
+
 
   const addToCart = (itemId: string, size: string = 'default') => {
     setCartItems((prev) => {
@@ -87,11 +87,18 @@ export const AppContextProvider = ({ children }: AppContextProviderProps) => {
   };
 
   useEffect(() => {
-    async function loadData() {
-      await fetchProductData();
-      await fetchUserData();
+    if (session) {
+      const user = session.user as User;
+      setUserData(user);
+      setIsSeller(user.role === 'admin' || user.role === 'seller');
+    } else {
+      setUserData(false);
+      setIsSeller(false);
     }
-    loadData();
+  }, [session]);
+
+  useEffect(() => {
+    fetchProductData();
   }, []);
 
   const contextValue: AppContextType = {
@@ -106,7 +113,6 @@ export const AppContextProvider = ({ children }: AppContextProviderProps) => {
     getCartCount,
     getCartAmount,
     fetchProductData,
-    fetchUserData,
   };
 
   return <AppContext.Provider value={contextValue}>{children}</AppContext.Provider>;
