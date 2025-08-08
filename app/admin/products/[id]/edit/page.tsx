@@ -5,8 +5,8 @@ interface EditProductPageProps {
   params: { id: string };
 }
 
-const EditProductPage = async ({ params }: EditProductPageProps) => {
-  const result = await getProductById(params.id);
+const EditProductPage = async ({ params: { id } }: EditProductPageProps) => {
+  const result = await getProductById(id);
 
   if (!result.success) {
     return <p className="text-destructive">{result.message}</p>;

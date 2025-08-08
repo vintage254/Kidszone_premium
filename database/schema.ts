@@ -15,7 +15,7 @@ import {
 } from "drizzle-orm/pg-core";
 
 
-export const ROLE_ENUM = pgEnum("role", ["ADMIN"]);
+export const ROLE_ENUM = pgEnum("role", ["ADMIN", "USER", "SELLER"]);
 
 export const ORDER_STATUS_ENUM = pgEnum("order_status", [
   "PENDING",
@@ -32,7 +32,7 @@ export const users = pgTable("users", {
   password: text("password"),
   refNo: text("ref_no").notNull(),
   status: text("status").default('active'),
-  role: ROLE_ENUM("role").default("ADMIN"),
+  role: ROLE_ENUM("role").default("USER"),
   lastActivityDate: date("last_activity_date").defaultNow(),
   createdAt: timestamp("created_at", {
     withTimezone: true,

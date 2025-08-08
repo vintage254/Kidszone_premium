@@ -23,7 +23,7 @@ export const AppContextProvider = ({ children }: AppContextProviderProps) => {
   const router = useRouter();
 
   const [products, setProducts] = useState<Product[]>([]);
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [userData, setUserData] = useState<User | false>(false);
   const [isSeller, setIsSeller] = useState(false);
   const [cartItems, setCartItems] = useState<CartItem>({});
@@ -87,15 +87,15 @@ export const AppContextProvider = ({ children }: AppContextProviderProps) => {
   };
 
   useEffect(() => {
-    if (session) {
+    if (status === 'authenticated' && session) {
       const user = session.user as User;
       setUserData(user);
-      setIsSeller(user.role === 'admin' || user.role === 'seller');
+      setIsSeller(user.role === 'ADMIN' || user.role === 'SELLER');
     } else {
       setUserData(false);
       setIsSeller(false);
     }
-  }, [session]);
+  }, [session, status]);
 
   useEffect(() => {
     fetchProductData();

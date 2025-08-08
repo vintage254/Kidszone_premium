@@ -5,7 +5,7 @@ export const productFormSchema = z.object({
   description: z.string().min(10, "Description must be at least 10 characters"),
   price: z.coerce.number().positive("Price must be a positive number"),
   category: z.string().min(2, "Category must be at least 2 characters"),
-  images: z.array(z.string().url()).min(1, "At least one image is required.").max(4, "You can upload a maximum of 4 images."),
+  images: z.array(z.string().url()).max(4, "You can upload a maximum of 4 images."),
   isFeatured: z.boolean().optional(),
   isBanner: z.boolean().optional(),
 });

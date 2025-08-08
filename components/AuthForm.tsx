@@ -53,16 +53,7 @@ const AuthForm = <T extends FieldValues>({
   const handleSubmit: SubmitHandler<T> = async (data) => {
     const result = await onSubmit(data);
 
-    if (result.success) {
-      toast({
-        title: "Success",
-        description: isSignIn
-          ? "You have successfully signed in."
-          : "You have successfully signed up.",
-      });
-
-      router.push("/"); // Redirect to home on success
-    } else {
+    if (result && !result.success) {
       toast({
         title: `Error ${isSignIn ? "signing in" : "signing up"}`,
         description: result.error ?? "An error occurred.",
