@@ -1,11 +1,91 @@
 {
-  "id": "aa0068f3-e243-4c1e-9be3-bac64918c082",
+  "id": "42e7ce72-ddcc-47fb-9814-65c48c1ad094",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.books": {
-      "name": "books",
+    "public.orders": {
+      "name": "orders",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "product_id": {
+          "name": "product_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "order_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'PENDING'"
+        },
+        "tracking_number": {
+          "name": "tracking_number",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "orders_user_id_users_id_fk": {
+          "name": "orders_user_id_users_id_fk",
+          "tableFrom": "orders",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "orders_product_id_products_id_fk": {
+          "name": "orders_product_id_products_id_fk",
+          "tableFrom": "orders",
+          "tableTo": "products",
+          "columnsFrom": [
+            "product_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.products": {
+      "name": "products",
       "schema": "",
       "columns": {
         "id": {
@@ -21,67 +101,47 @@
           "primaryKey": false,
           "notNull": true
         },
-        "author": {
-          "name": "author",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "genre": {
-          "name": "genre",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "rating": {
-          "name": "rating",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "cover_url": {
-          "name": "cover_url",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "cover_color": {
-          "name": "cover_color",
-          "type": "varchar(7)",
-          "primaryKey": false,
-          "notNull": true
-        },
         "description": {
           "name": "description",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "total_copies": {
-          "name": "total_copies",
-          "type": "integer",
+        "category": {
+          "name": "category",
+          "type": "varchar(100)",
           "primaryKey": false,
-          "notNull": true,
-          "default": 1
+          "notNull": true
         },
-        "available_copies": {
-          "name": "available_copies",
-          "type": "integer",
+        "price": {
+          "name": "price",
+          "type": "numeric",
           "primaryKey": false,
-          "notNull": true,
-          "default": 0
+          "notNull": true
         },
-        "video_url": {
-          "name": "video_url",
+        "image1": {
+          "name": "image1",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
-        "summary": {
-          "name": "summary",
-          "type": "varchar",
+        "image2": {
+          "name": "image2",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
+        },
+        "image3": {
+          "name": "image3",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "image4": {
+          "name": "image4",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         },
         "created_at": {
           "name": "created_at",
@@ -94,15 +154,7 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "books_id_unique": {
-          "name": "books_id_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
-        }
-      },
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -130,31 +182,17 @@
           "primaryKey": false,
           "notNull": true
         },
-        "university_id": {
-          "name": "university_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
         "password": {
           "name": "password",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "university_card": {
-          "name": "university_card",
+        "ref_no": {
+          "name": "ref_no",
           "type": "text",
           "primaryKey": false,
           "notNull": true
-        },
-        "status": {
-          "name": "status",
-          "type": "status",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "'PENDING'"
         },
         "role": {
           "name": "role",
@@ -162,7 +200,7 @@
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": false,
-          "default": "'USER'"
+          "default": "'ADMIN'"
         },
         "last_activity_date": {
           "name": "last_activity_date",
@@ -183,25 +221,11 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "users_id_unique": {
-          "name": "users_id_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
-        },
         "users_email_unique": {
           "name": "users_email_unique",
           "nullsNotDistinct": false,
           "columns": [
             "email"
-          ]
-        },
-        "users_university_id_unique": {
-          "name": "users_university_id_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "university_id"
           ]
         }
       },
@@ -211,29 +235,21 @@
     }
   },
   "enums": {
-    "public.borrow_status": {
-      "name": "borrow_status",
+    "public.order_status": {
+      "name": "order_status",
       "schema": "public",
       "values": [
-        "BORROWED",
-        "RETURNED"
+        "PENDING",
+        "PAID",
+        "SHIPPED",
+        "DELIVERED"
       ]
     },
     "public.role": {
       "name": "role",
       "schema": "public",
       "values": [
-        "USER",
         "ADMIN"
-      ]
-    },
-    "public.status": {
-      "name": "status",
-      "schema": "public",
-      "values": [
-        "PENDING",
-        "APPROVED",
-        "REJECTED"
       ]
     }
   },

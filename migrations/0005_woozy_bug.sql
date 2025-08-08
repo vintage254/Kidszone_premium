@@ -1,1 +1,0 @@
-ALTER TABLE "jobs" ADD CONSTRAINT "jobs_id_unique" UNIQUE("id");

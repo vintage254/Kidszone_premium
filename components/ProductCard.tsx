@@ -1,49 +1,29 @@
 import React from 'react';
 import Image from 'next/image';
 import { useAppContext } from '@/context/AppContext';
-
-interface Product {
-  _id: string;
-  name: string;
-  description: string;
-  price: number;
-  image: string[];
-  category: string;
-  subCategory: string;
-  sizes: string[];
-  bestseller: boolean;
-}
+import { type Product } from '@/database/schema';
 
 interface ProductCardProps {
   product: Product;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
-  const { currency, router } = useAppContext();
-
-  const handleClick = () => {
-    router.push(`/product/${product._id}`);
-  };
-
+const ProductCard = ({ product }: ProductCardProps) => {
   return (
-    <div 
-      className="text-gray-700 cursor-pointer transition-transform hover:scale-105"
-      onClick={handleClick}
-    >
-      <div className="overflow-hidden rounded-lg">
+    <div className="bg-white rounded-lg shadow-md overflow-hidden group h-full flex flex-col">
+      <div className="relative w-full h-48">
         <Image
-          className="hover:scale-110 transition ease-in-out duration-300"
-          src={product.image[0] || '/start/product_placeholder.png'}
-          alt={product.name}
-          width={300}
-          height={300}
+          src={product.image1 || '/images/placeholder.png'}
+          alt={product.title}
+          fill
+          className="object-cover group-hover:scale-105 transition-transform duration-300 ease-in-out"
         />
       </div>
-      <p className="pt-3 pb-1 text-sm font-medium">{product.name}</p>
-      <p className="text-sm font-bold">
-        {currency}
-        {product.price}
-      </p>
+      <div className="p-4 flex flex-col flex-grow">
+        <h3 className="text-lg font-semibold text-gray-800 truncate flex-grow">{product.title}</h3>
+        <div className="mt-2 flex justify-between items-center">
+          <p className="text-lg font-bold text-primary">${product.price}</p>
+        </div>
+      </div>
     </div>
   );
 };

@@ -26,6 +26,7 @@ import { FIELD_NAMES, FIELD_TYPES } from "@/constants";
 import FileUpload from "@/components/FileUpload";
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { signInWithGoogle } from "@/lib/actions/auth";
 
 interface Props<T extends FieldValues> {
   schema: ZodType<T>;
@@ -60,7 +61,7 @@ const AuthForm = <T extends FieldValues>({
           : "You have successfully signed up.",
       });
 
-      router.push("/user-dashboard");
+      router.push("/"); // Redirect to home on success
     } else {
       toast({
         title: `Error ${isSignIn ? "signing in" : "signing up"}`,
@@ -73,12 +74,12 @@ const AuthForm = <T extends FieldValues>({
   return (
     <div className="flex flex-col gap-4">
       <h1 className="text-2xl font-semibold text-white">
-        {isSignIn ? "Welcome back to GrammarWise" : "Create your GrammarWise account"}
+        {isSignIn ? "Welcome back" : "Create your account"}
       </h1>
       <p className="text-light-100">
         {isSignIn
-          ? "Access the vast collection of resources, and stay updated"
-          : "Please complete all fields to create your account. A reference number is required for verification."}
+          ? "Access your account and resources."
+          : "Please complete all fields to create your account."}
       </p>
       <Form {...form}>
         <form
@@ -214,18 +215,37 @@ const AuthForm = <T extends FieldValues>({
             </>
           )}
 
-          <Button 
-            type="submit" 
-            className="form-btn bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-gray-900 font-semibold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out transform hover:scale-[1.02]"
-          >
-            {isSignIn ? "Sign In" : "Sign Up"}
+          <Button type="submit" className="w-full">
+            {isSignIn ? "Sign In" : "Create Account"}
           </Button>
+
+          {isSignIn && (
+            <>
+              <div className="relative my-4">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">
+                    Or continue with
+                  </span>
+                </div>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={() => signInWithGoogle()}
+              >
+                Sign in with Google
+              </Button>
+            </>
+          )}
         </form>
       </Form>
 
-      <p className="text-center text-base font-medium">
-        {isSignIn ? "New to GrammarWise? " : "Already have an account? "}
-
+      <p className="text-center text-base font-medium mt-4">
+        {isSignIn ? "New here? " : "Already have an account? "}
         <Link
           href={isSignIn ? "/sign-up" : "/sign-in"}
           className="font-bold text-white hover:text-amber-500 transition-colors ease-in-out duration-200"
@@ -236,4 +256,5 @@ const AuthForm = <T extends FieldValues>({
     </div>
   );
 };
+
 export default AuthForm;

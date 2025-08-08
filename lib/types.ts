@@ -8,3 +8,4 @@ export interface Job {
   createdAt: Date;
   deadline: Date;
 }
+

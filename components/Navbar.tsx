@@ -1,19 +1,24 @@
 "use client"
+
 import Image, { StaticImageData } from 'next/image';
 import React, { useState } from 'react';
 import { assets } from '../assets/assets';
 import Link from 'next/link';
+
 import { useAppContext } from '@/context/AppContext';
 
 interface AppContext {
   isSeller: boolean;
   router: any;
   getCartCount: () => number;
+  userData: any;
 }
 
 const Navbar = () => {
   const [menu, setMenu] = useState('home');
-  const { isSeller, router, getCartCount }: AppContext = useAppContext();
+  const { isSeller, router, getCartCount, userData }: AppContext = useAppContext();
+
+
 
   return (
     <div className="flex justify-between items-center py-4">
@@ -36,7 +41,25 @@ const Navbar = () => {
       </ul>
       <div className="flex items-center gap-4">
         <Image className="w-6 cursor-pointer" src={assets.search_icon} alt="Search" width={24} height={24} />
-        <Image className="w-6 cursor-pointer" src={assets.profile_icon} alt="Profile" width={24} height={24} />
+        
+        {/* Authentication buttons */}
+        {!userData ? (
+          <button 
+            onClick={() => router.push('/sign-in')} 
+            className="px-4 py-2 rounded-full border-2 border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white transition"
+          >
+            Sign In
+          </button>
+        ) : (
+          <button 
+            onClick={() => router.push('/sign-out')}
+            className="px-4 py-2 rounded-full border-2 border-gray-600 text-gray-600 hover:bg-gray-600 hover:text-white transition"
+          >
+            Sign Out
+          </button>
+        )}
+        
+        {/* Cart icon with count */}
         <div onClick={() => router.push('/cart')} className="relative cursor-pointer">
           <Image className="w-6" src={assets.cart_icon} alt="Cart" width={24} height={24} />
           {getCartCount() > 0 && (
@@ -45,9 +68,11 @@ const Navbar = () => {
             </div>
           )}
         </div>
-        {isSeller && (
-          <button onClick={() => router.push('/admin/add-product')} className="px-6 py-2 rounded-full border-2 border-orange-600">
-            Add Product
+        
+        {/* Admin dashboard link for admin users */}
+        {isSeller && userData && (
+          <button onClick={() => router.push('/admin')} className="px-4 py-2 rounded-full bg-orange-600 text-white hover:bg-orange-700 transition">
+            Admin Dashboard
           </button>
         )}
       </div>

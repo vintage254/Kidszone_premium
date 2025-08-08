@@ -1,28 +1,24 @@
 import StatCard from "@/components/admin/StatCard";
-import RecentRequests from "@/components/admin/RecentRequests";
-import { getDashboardData } from "@/lib/admin/actions/stats";
-import { Users, UserCheck, Briefcase, FileText } from 'lucide-react';
+import { getAdminDashboardStats } from "@/lib/admin/actions/stats";
+import { Package, ShoppingCart, CreditCard, Truck } from 'lucide-react';
 
 const AdminDashboardPage = async () => {
-  const result = await getDashboardData();
+  const result = await getAdminDashboardStats();
 
   if (!result.success || !result.data) {
-    return <p className="text-destructive">Error loading dashboard data.</p>;
+    return <p className="text-destructive">{result.error || 'Error loading dashboard data.'}</p>;
   }
 
-  const { stats, recentPendingUsers } = result.data;
+  const { totalProducts, totalOrders, paidOrders, deliveredOrders } = result.data;
 
   return (
     <section>
-      <h1 className="text-2xl font-semibold mb-6">Dashboard</h1>
+      <h1 className="text-2xl font-semibold mb-6">E-commerce Dashboard</h1>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatCard title="Total Users" value={stats.totalUsers} icon={Users} />
-        <StatCard title="Pending Requests" value={stats.pendingUsers} icon={UserCheck} />
-        <StatCard title="Total Jobs" value={stats.totalJobs} icon={Briefcase} />
-        <StatCard title="Total Applications" value={stats.totalApplications} icon={FileText} />
-      </div>
-      <div className="mt-8">
-        <RecentRequests users={recentPendingUsers} />
+        <StatCard title="Total Products" value={totalProducts} icon={Package} />
+        <StatCard title="Total Orders" value={totalOrders} icon={ShoppingCart} />
+        <StatCard title="Paid Orders" value={paidOrders} icon={CreditCard} />
+        <StatCard title="Delivered Orders" value={deliveredOrders} icon={Truck} />
       </div>
     </section>
   );
