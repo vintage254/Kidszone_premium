@@ -1,11 +1,11 @@
  import Link from "next/link";
 import Image from "next/image";
-import { signOutAction } from "@/lib/actions/auth";
+import { auth, SignOutButton } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
-import { auth } from "@/auth";
 
-const Header = async () => {
-  const session = await auth();
+const Header = () => {
+  const { sessionClaims } = auth();
+  const isAdmin = sessionClaims?.metadata?.role === 'ADMIN';
 
   return (
     <header className="flex justify-between items-center gap-5 border-b border-gray-200/20 pb-4">
@@ -14,7 +14,7 @@ const Header = async () => {
       </Link>
 
       <ul className="flex flex-row items-center gap-4">
-        {session?.user?.role === 'ADMIN' && (
+        {isAdmin && (
           <li>
             <Link href="/admin">
               <Button variant="outline" size="sm">Admin</Button>
@@ -22,9 +22,9 @@ const Header = async () => {
           </li>
         )}
         <li>
-          <form action={signOutAction}>
-            <Button type="submit" size="sm">Logout</Button>
-          </form>
+          <SignOutButton>
+            <Button size="sm">Logout</Button>
+          </SignOutButton>
         </li>
       </ul>
     </header>

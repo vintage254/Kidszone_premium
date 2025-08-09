@@ -1,13 +1,13 @@
 import { getOrdersByUserId } from "@/lib/actions/order.actions";
 import { UserOrders } from "@/components/orders/UserOrders";
-import { auth } from "@/auth";
+import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
 const OrdersPage = async () => {
-  const session = await auth();
+  const { userId } = await auth();
 
-  if (!session?.user) {
-    redirect("/api/auth/signin");
+  if (!userId) {
+    redirect("/sign-in");
   }
 
   const result = await getOrdersByUserId();

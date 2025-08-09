@@ -1,7 +1,7 @@
 'use client';
 import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { useUser } from '@clerk/nextjs';
+import { createContext, useContext, useEffect, useState, ReactNode, useMemo } from 'react';
 import { AppContextType, Product, User, CartItem, productsDummyData } from '../types';
 
 export const AppContext = createContext<AppContextType | null>(null);
@@ -23,15 +23,29 @@ export const AppContextProvider = ({ children }: AppContextProviderProps) => {
   const router = useRouter();
 
   const [products, setProducts] = useState<Product[]>([]);
-  const { data: session, status } = useSession();
-  const [userData, setUserData] = useState<User | false>(false);
-  const [isSeller, setIsSeller] = useState(false);
+  const { user, isLoaded } = useUser();
   const [cartItems, setCartItems] = useState<CartItem>({});
+
+  const userData = useMemo(() => {
+    if (isLoaded && user) {
+      return {
+        id: user.id,
+        name: user.fullName,
+        email: user.primaryEmailAddress?.emailAddress,
+        image: user.imageUrl,
+        role: user.publicMetadata?.role as 'ADMIN' | 'USER' | 'SELLER' | undefined,
+      } as User;
+    }
+    return false;
+  }, [user, isLoaded]);
+
+  const isSeller = useMemo(() => {
+    return userData && (userData.role === 'ADMIN' || userData.role === 'SELLER');
+  }, [userData]);
 
   const fetchProductData = async () => {
     setProducts(productsDummyData);
   };
-
 
 
   const addToCart = (itemId: string, size: string = 'default') => {
@@ -87,19 +101,15 @@ export const AppContextProvider = ({ children }: AppContextProviderProps) => {
   };
 
   useEffect(() => {
-    if (status === 'authenticated' && session) {
-      const user = session.user as User;
-      setUserData(user);
-      setIsSeller(user.role === 'ADMIN' || user.role === 'SELLER');
-    } else {
-      setUserData(false);
-      setIsSeller(false);
-    }
-  }, [session, status]);
-
-  useEffect(() => {
     fetchProductData();
   }, []);
+
+  // Clear cart when user signs out
+  useEffect(() => {
+    if (isLoaded && !user) {
+      setCartItems({});
+    }
+  }, [isLoaded, user]);
 
   const contextValue: AppContextType = {
     products,
@@ -114,6 +124,10 @@ export const AppContextProvider = ({ children }: AppContextProviderProps) => {
     getCartAmount,
     fetchProductData,
   };
+
+  // Debug log to see what we're providing
+  console.log('AppContext providing - userData:', userData);
+  console.log('AppContext providing - isSeller:', isSeller);
 
   return <AppContext.Provider value={contextValue}>{children}</AppContext.Provider>;
 };

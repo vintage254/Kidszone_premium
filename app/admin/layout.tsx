@@ -1,34 +1,28 @@
 import React, { ReactNode } from "react";
-import { auth } from "@/auth";
+import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
 import "@/styles/admin.css";
 import Sidebar from "@/components/admin/Sidebar";
 import Header from "@/components/admin/Header";
-import { db } from "@/database/drizzle";
-import { users } from "@/database/schema";
-import { eq } from "drizzle-orm";
 
 const Layout = async ({ children }: { children: ReactNode }) => {
-  const session = await auth();
+  const { userId, sessionClaims } = await auth();
 
-  if (!session?.user?.id) redirect("/sign-in");
+  if (!userId) redirect("/sign-in");
 
-  const isAdmin = await db
-    .select({ role: users.role })
-    .from(users)
-    .where(eq(users.id, session.user.id))
-    .limit(1)
-    .then((res) => res[0]?.role === "ADMIN" || res[0]?.role === "SELLER");
+  // Check if user has admin or seller role from Clerk's publicMetadata
+  const userRole = sessionClaims?.metadata?.role;
+  const isAdmin = userRole === "ADMIN" || userRole === "SELLER";
 
   if (!isAdmin) redirect("/");
 
   return (
     <main className="flex min-h-screen w-full flex-row">
-      <Sidebar session={session} />
+      <Sidebar />
 
       <div className="admin-container">
-        <Header session={session} />
+        <Header />
         {children}
       </div>
     </main>

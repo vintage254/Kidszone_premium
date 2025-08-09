@@ -1,11 +1,15 @@
-import { Session } from "next-auth";
+"use client";
 
-const Header = ({ session }: { session: Session }) => {
+import { useUser } from "@clerk/nextjs";
+
+const Header = () => {
+  const { user } = useUser();
+
   return (
     <header className="admin-header">
       <div>
         <h2 className="text-2xl font-semibold text-dark-400">
-          {session?.user?.name}
+          {user?.fullName}
         </h2>
         <p className="text-base text-slate-500">
           Monitor all of your users here

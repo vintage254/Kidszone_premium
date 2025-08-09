@@ -6,9 +6,10 @@ import Link from "next/link";
 import { cn, getInitials } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Session } from "next-auth";
+import { useUser } from "@clerk/nextjs";
 
-const Sidebar = ({ session }: { session: Session }) => {
+const Sidebar = () => {
+  const { user } = useUser();
   const pathname = usePathname();
 
   return (
@@ -60,13 +61,13 @@ const Sidebar = ({ session }: { session: Session }) => {
       <div className="user">
         <Avatar>
           <AvatarFallback className="bg-secondary text-white">
-            {getInitials(session?.user?.name || "IN")}
+            {getInitials(user?.fullName || "IN")}
           </AvatarFallback>
         </Avatar>
 
         <div className="flex flex-col max-md:hidden">
-          <p className="font-semibold text-gray-800 dark:text-gray-200">{session?.user?.name}</p>
-          <p className="text-xs text-gray-500 dark:text-gray-400">{session?.user?.email}</p>
+          <p className="font-semibold text-gray-800 dark:text-gray-200">{user?.fullName}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">{user?.primaryEmailAddress?.emailAddress}</p>
         </div>
       </div>
     </div>
