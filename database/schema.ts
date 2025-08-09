@@ -27,9 +27,10 @@ export const ORDER_STATUS_ENUM = pgEnum("order_status", [
 
 export const users = pgTable("users", {
   id: uuid("id").notNull().primaryKey().defaultRandom(),
+  clerkUserId: text("clerk_user_id").unique(), // Clerk's user ID for authentication
   fullName: varchar("full_name", { length: 255 }).notNull(),
   email: text("email").notNull().unique(),
-  password: text("password"),
+  password: text("password"), // Optional for Clerk users
   refNo: text("ref_no").notNull(),
   status: text("status").default('active'),
   role: ROLE_ENUM("role").default("USER"),

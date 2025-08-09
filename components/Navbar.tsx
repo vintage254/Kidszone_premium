@@ -19,10 +19,7 @@ const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   
-  const { router, getCartCount }: AppContext = useAppContext();
-  const { user } = useUser();
-
-  const isSeller = user?.publicMetadata?.role === 'ADMIN' || user?.publicMetadata?.role === 'SELLER';
+  const { router, getCartCount, isSeller }: AppContext = useAppContext();
 
   // Handle scroll effect
   useEffect(() => {
