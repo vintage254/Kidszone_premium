@@ -4,7 +4,7 @@ import Image, { StaticImageData } from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { assets } from '../assets/assets';
 import Link from 'next/link';
-import { signOutAction } from '@/lib/actions/auth';
+import { UserButton, useUser, SignedIn, SignedOut, SignInButton, SignUpButton } from '@clerk/nextjs';
 import { useAppContext } from '@/context/AppContext';
 
 interface AppContext {
@@ -19,7 +19,10 @@ const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   
-  const { isSeller, router, getCartCount, userData }: AppContext = useAppContext();
+  const { router, getCartCount }: AppContext = useAppContext();
+  const { user } = useUser();
+
+  const isSeller = user?.publicMetadata?.role === 'ADMIN' || user?.publicMetadata?.role === 'SELLER';
 
   // Handle scroll effect
   useEffect(() => {
@@ -52,11 +55,12 @@ const Navbar = () => {
 
   return (
     <nav 
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`sticky top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled 
           ? 'bg-white/95 backdrop-blur-md shadow-lg py-2' 
           : 'bg-white py-4'
       }`}
+      style={{ scrollBehavior: 'smooth' }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center">
@@ -133,23 +137,29 @@ const Navbar = () => {
             </button>
 
             {/* Authentication buttons */}
-            {!userData ? (
-              <button
-                onClick={() => router.push('/sign-in')}
-                className="px-6 py-2 rounded-full border-2 border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white transition-all duration-300 hover:scale-105 hover:shadow-lg font-medium"
-              >
-                Sign In
-              </button>
-            ) : (
-              <form action={signOutAction} className="inline">
-                <button
-                  type="submit"
-                  className="px-6 py-2 rounded-full border-2 border-gray-600 text-gray-600 hover:bg-gray-600 hover:text-white transition-all duration-300 hover:scale-105 hover:shadow-lg font-medium"
-                >
-                  Sign Out
-                </button>
-              </form>
-            )}
+            <div className="flex items-center gap-4">
+              <SignedOut>
+                <div className="flex items-center gap-3">
+                  <SignInButton>
+                    <button 
+                      className="px-6 py-2 rounded-full border-2 border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white transition-all duration-300 hover:scale-105 hover:shadow-lg font-medium"
+                    >
+                      Sign In
+                    </button>
+                  </SignInButton>
+                  <SignUpButton>
+                    <button 
+                      className="px-6 py-2 rounded-full bg-orange-600 text-white hover:bg-orange-700 transition-all duration-300 hover:scale-105 hover:shadow-lg font-medium"
+                    >
+                      Sign Up
+                    </button>
+                  </SignUpButton>
+                </div>
+              </SignedOut>
+              <SignedIn>
+                <UserButton afterSignOutUrl="/" />
+              </SignedIn>
+            </div>
 
             {/* Cart icon with count */}
             <button 
@@ -171,7 +181,7 @@ const Navbar = () => {
             </button>
 
             {/* Admin dashboard link for admin users */}
-            {userData && (userData.role === 'ADMIN' || userData.role === 'SELLER') && (
+            {isSeller && (
               <button 
                 onClick={() => router.push('/admin')} 
                 className="px-6 py-2 rounded-full bg-orange-600 text-white hover:bg-orange-700 transition-all duration-300 hover:scale-105 hover:shadow-lg font-medium"

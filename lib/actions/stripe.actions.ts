@@ -1,15 +1,14 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { auth } from "@/auth";
+import { auth } from "@clerk/nextjs/server";
 import { db } from "@/database/drizzle";
 import { orders, products } from "@/database/schema";
 import { stripe } from "@/lib/stripe";
 import { eq } from "drizzle-orm";
 
 export async function createCheckoutSession(productId: string) {
-  const session = await auth();
-  const userId = session?.user?.id;
+  const { userId } = await auth();
 
   if (!userId) {
     return { success: false, message: "User not authenticated." };

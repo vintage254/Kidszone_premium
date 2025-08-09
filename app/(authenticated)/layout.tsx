@@ -1,6 +1,6 @@
 import { ReactNode, Suspense } from "react";
 import Header from "@/components/Header";
-import { auth } from "@/auth";
+import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { after } from "next/server";
 import { db } from "@/database/drizzle";
@@ -10,26 +10,26 @@ import UnverifiedUserToast from "@/components/UnverifiedUserToast";
 import { Toaster } from "sonner";
 
 const Layout = async ({ children }: { children: ReactNode }) => {
-  const session = await auth();
+  const { userId } = await auth();
 
-  if (!session) redirect("/sign-in");
+  if (!userId) redirect("/sign-in");
 
   after(async () => {
-    if (!session?.user?.id) return;
+    if (!userId) return;
 
     const user = await db
       .select({ lastActivityDate: users.lastActivityDate })
       .from(users)
-      .where(eq(users.id, session?.user?.id))
+      .where(eq(users.id, userId))
       .limit(1);
 
-    if (user[0].lastActivityDate === new Date().toISOString().slice(0, 10))
+    if (user[0]?.lastActivityDate === new Date().toISOString().slice(0, 10))
       return;
 
     await db
       .update(users)
       .set({ lastActivityDate: new Date().toISOString().slice(0, 10) })
-      .where(eq(users.id, session?.user?.id));
+      .where(eq(users.id, userId));
   });
 
   return (

@@ -5,7 +5,7 @@ import { orders, products, users } from "@/database/schema";
 import { desc, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { auth } from "@/auth";
+import { auth } from "@clerk/nextjs/server";
 import { updateOrderSchema } from "@/lib/schemas/order.schemas";
 
 export async function getOrders() {
@@ -62,8 +62,7 @@ export async function updateOrder(orderId: string, values: z.infer<typeof update
 }
 
 export async function getOrdersByUserId() {
-  const session = await auth();
-  const userId = session?.user?.id;
+  const { userId } = await auth();
 
   if (!userId) {
     return { success: false, message: "User not authenticated." };

@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@/auth";
+import { auth } from "@clerk/nextjs/server";
 import { db } from "@/database/drizzle";
 import { orders, products } from "@/database/schema";
 import { eq } from "drizzle-orm";
@@ -41,8 +41,7 @@ const generateAccessToken = async () => {
  * @see https://developer.paypal.com/docs/api/orders/v2/#orders_create
  */
 export const createPaypalOrder = async (productId: string) => {
-  const session = await auth();
-  const userId = session?.user?.id;
+  const { userId } = await auth();
 
   if (!userId) {
     return { success: false, message: "User not authenticated." };
