@@ -4,49 +4,89 @@ import { useUser } from '@clerk/nextjs';
 import { createContext, useContext, useEffect, useState, ReactNode, useMemo } from 'react';
 import { AppContextType, Product, User, CartItem, productsDummyData } from '../types';
 
-export const AppContext = createContext<AppContextType | null>(null);
-
-export const useAppContext = () => {
-  const context = useContext(AppContext);
-  if (!context) {
-    throw new Error('useAppContext must be used within an AppContextProvider');
-  }
-  return context;
-};
-
 interface AppContextProviderProps {
   children: ReactNode;
 }
 
-export const AppContextProvider = ({ children }: AppContextProviderProps) => {
+interface DatabaseUser {
+  id: string;
+  clerkUserId: string | null;
+  fullName: string;
+  email: string;
+  role: "ADMIN" | "USER" | "SELLER";
+  status: string | null;
+  refNo: string;
+}
+
+const AppContext = createContext<AppContextType | undefined>(undefined);
+
+export function AppContextProvider({ children }: AppContextProviderProps) {
   const currency = process.env.NEXT_PUBLIC_CURRENCY || '$';
   const router = useRouter();
 
   const [products, setProducts] = useState<Product[]>([]);
   const { user, isLoaded } = useUser();
   const [cartItems, setCartItems] = useState<CartItem>({});
+  const [dbUser, setDbUser] = useState<DatabaseUser | null>(null);
+  const [isLoadingUser, setIsLoadingUser] = useState(true);
+
+  // Fetch user data from database when Clerk user is loaded
+  useEffect(() => {
+    async function fetchUserData() {
+      if (isLoaded && user) {
+        try {
+          const response = await fetch('/api/user/sync', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              clerkUserId: user.id,
+              email: user.primaryEmailAddress?.emailAddress,
+              fullName: user.fullName || '',
+            }),
+          });
+          
+          if (response.ok) {
+            const userData = await response.json();
+            setDbUser(userData);
+          }
+        } catch (error) {
+          console.error('Error syncing user data:', error);
+        } finally {
+          setIsLoadingUser(false);
+        }
+      } else if (isLoaded && !user) {
+        setDbUser(null);
+        setIsLoadingUser(false);
+      }
+    }
+
+    fetchUserData();
+  }, [user, isLoaded]);
 
   const userData = useMemo(() => {
-    if (isLoaded && user) {
+    if (isLoaded && user && dbUser) {
       return {
-        id: user.id,
-        name: user.fullName,
-        email: user.primaryEmailAddress?.emailAddress,
+        id: dbUser.id,
+        name: dbUser.fullName,
+        fullName: dbUser.fullName,
+        email: dbUser.email,
         image: user.imageUrl,
-        role: user.publicMetadata?.role as 'ADMIN' | 'USER' | 'SELLER' | undefined,
+        role: dbUser.role,
+        refNo: dbUser.refNo,
       } as User;
     }
     return false;
-  }, [user, isLoaded]);
+  }, [user, isLoaded, dbUser]);
 
   const isSeller = useMemo(() => {
-    return userData && (userData.role === 'ADMIN' || userData.role === 'SELLER');
-  }, [userData]);
+    return Boolean(dbUser && (dbUser.role === 'ADMIN' || dbUser.role === 'SELLER'));
+  }, [dbUser]);
 
   const fetchProductData = async () => {
     setProducts(productsDummyData);
   };
-
 
   const addToCart = (itemId: string, size: string = 'default') => {
     setCartItems((prev) => {
@@ -130,4 +170,12 @@ export const AppContextProvider = ({ children }: AppContextProviderProps) => {
   console.log('AppContext providing - isSeller:', isSeller);
 
   return <AppContext.Provider value={contextValue}>{children}</AppContext.Provider>;
+};
+
+export const useAppContext = () => {
+  const context = useContext(AppContext);
+  if (!context) {
+    throw new Error('useAppContext must be used within an AppContextProvider');
+  }
+  return context;
 };
