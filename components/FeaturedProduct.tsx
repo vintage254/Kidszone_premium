@@ -60,38 +60,82 @@ const FeaturedProduct = () => {
         <div className="w-28 h-0.5 bg-orange-600 mt-2"></div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-14 mt-12 md:px-14 px-4">
-        {products.map((product) => (
-          <div key={product.id} className="space-y-4">
-            <TiltedCard
-              imageSrc={product.image1 || '/images/placeholder.png'}
-              altText={product.title}
-              containerHeight="350px"
-              containerWidth="100%"
-              imageHeight="300px"
-              imageWidth="100%"
-              scaleOnHover={1.05}
-              rotateAmplitude={12}
-              showMobileWarning={false}
-              showTooltip={false}
-              displayOverlayContent={false}
-              overlayContent={null}
-            />
-            
-            {/* Description and Shop Now below the card */}
-            <div className="space-y-3">
-              <h3 className="font-semibold text-lg text-gray-900">{product.title}</h3>
-              <p className="text-base text-gray-700 leading-relaxed font-medium">
-                {truncateDescription(product.description, 120)}
-              </p>
-              <Link href={`/products/${product.id}`}>
-                <InteractiveHoverButton className="mt-2">
-                  Shop Now
-                </InteractiveHoverButton>
-              </Link>
-            </div>
+      {/* Mobile Carousel View */}
+      <div className="block sm:hidden mt-12">
+        <div className="relative overflow-hidden px-4">
+          <div className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar gap-6 pb-4">
+            {products.map((product) => (
+              <div key={product.id} className="flex-none w-80 snap-start">
+                <div className="space-y-4">
+                  <TiltedCard
+                    imageSrc={product.image1 || '/images/placeholder.png'}
+                    altText={product.title}
+                    containerHeight="350px"
+                    containerWidth="100%"
+                    imageHeight="300px"
+                    imageWidth="100%"
+                    scaleOnHover={1.05}
+                    rotateAmplitude={12}
+                    showMobileWarning={false}
+                    showTooltip={false}
+                    displayOverlayContent={false}
+                    overlayContent={null}
+                  />
+                  
+                  {/* Description and Shop Now below the card */}
+                  <div className="space-y-3">
+                    <h3 className="font-semibold text-lg text-gray-900">{product.title}</h3>
+                    <p className="text-base text-gray-700 leading-relaxed font-medium">
+                      {truncateDescription(product.description, 120)}
+                    </p>
+                    <Link href={`/products/${product.id}`}>
+                      <InteractiveHoverButton className="mt-2">
+                        Shop Now
+                      </InteractiveHoverButton>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
+      </div>
+
+      {/* Desktop Grid View */}
+      <div className="hidden sm:block">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-14 mt-12 md:px-14 px-4">
+          {products.map((product) => (
+            <div key={product.id} className="space-y-4">
+              <TiltedCard
+                imageSrc={product.image1 || '/images/placeholder.png'}
+                altText={product.title}
+                containerHeight="350px"
+                containerWidth="100%"
+                imageHeight="300px"
+                imageWidth="100%"
+                scaleOnHover={1.05}
+                rotateAmplitude={12}
+                showMobileWarning={false}
+                showTooltip={false}
+                displayOverlayContent={false}
+                overlayContent={null}
+              />
+              
+              {/* Description and Shop Now below the card */}
+              <div className="space-y-3">
+                <h3 className="font-semibold text-lg text-gray-900">{product.title}</h3>
+                <p className="text-base text-gray-700 leading-relaxed font-medium">
+                  {truncateDescription(product.description, 120)}
+                </p>
+                <Link href={`/products/${product.id}`}>
+                  <InteractiveHoverButton className="mt-2">
+                    Shop Now
+                  </InteractiveHoverButton>
+                </Link>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

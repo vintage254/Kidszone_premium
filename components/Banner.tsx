@@ -2,8 +2,11 @@
 import React, { useEffect, useState } from "react";
 import { getBannerProducts } from "@/lib/actions/product.actions";
 import Link from "next/link";
-import { Button } from "./ui/button";
-import RollingGallery from "./ui/rollinggallery";
+import { BentoGrid, BentoGridItem } from "./ui/bento-grid";
+import { CardStack } from "./ui/card-stack";
+import { InteractiveHoverButton } from "./ui/interactivebutton";
+import TiltedCard from "./ui/tiltedcards";
+import { BackgroundLines } from "./ui/background-lines";
 
 export const Banner = () => {
   const [bannerProduct, setBannerProduct] = useState<any>(null);
@@ -51,27 +54,125 @@ export const Banner = () => {
     bannerProduct.image4,
   ].filter(img => img && img.trim() !== ''); // Filter out null/empty images
 
-  return (
-    <div className="flex flex-col md:flex-row items-center justify-around bg-secondary my-16 rounded-xl overflow-hidden p-8 md:p-4">
-      <div className="flex flex-col items-center md:items-start text-center md:text-left space-y-4 md:space-y-3 max-w-md">
-        <h2 className="text-2xl md:text-4xl font-semibold">
-          {bannerProduct.title}
-        </h2>
-        <p className="font-medium text-muted-foreground">
-          {bannerProduct.description}
-        </p>
-        <Button asChild size="lg" className="mt-4">
-          <Link href={`/products/${bannerProduct.id}`}>
-            View Product
-          </Link>
-        </Button>
-      </div>
-      <div className="mt-8 md:mt-0 w-full md:w-1/2">
-        <RollingGallery 
-          images={bannerImages}
-          autoplay={true}
-          pauseOnHover={true}
+  // Use all 4 images for the grid
+  const displayImages = bannerImages.slice(0, 4);
+
+  // Create card data for mobile CardStack (image only, no text) with TiltedCards effect
+  const cardStackItems = displayImages.map((image, index) => ({
+    id: index + 1,
+    name: "", // Empty to hide text
+    designation: "", // Empty to hide text
+    content: (
+      <div className="w-full h-full flex items-center justify-center">
+        <TiltedCard
+          imageSrc={image}
+          altText={`${bannerProduct.title} - Image ${index + 1}`}
+          containerHeight="100%"
+          containerWidth="100%"
+          imageHeight="200px"
+          imageWidth="100%"
+          scaleOnHover={1.03}
+          rotateAmplitude={6}
+          showMobileWarning={false}
+          showTooltip={false}
+          displayOverlayContent={false}
+          overlayContent={null}
         />
+      </div>
+    ),
+  }));
+
+  return (
+    <div className="my-16 p-8 relative">
+      <BackgroundLines className="absolute inset-0 w-full h-full">
+        <div></div>
+      </BackgroundLines>
+      
+      {/* Mobile Layout - CardStack */}
+      <div className="block md:hidden relative z-10">
+        <div className="flex flex-col items-center space-y-8">
+          {/* Card Stack for Images */}
+          <div className="flex justify-center">
+            <CardStack items={cardStackItems} offset={15} scaleFactor={0.06} />
+          </div>
+          
+          {/* Product Information and Button Below */}
+          <div className="max-w-md text-center space-y-4">
+            <h2 className="text-2xl font-bold line-clamp-2">
+              {bannerProduct.title}
+            </h2>
+            <p className="text-base text-muted-foreground line-clamp-4">
+              {bannerProduct.description}
+            </p>
+            <Link href={`/products/${bannerProduct.id}`} className="inline-block">
+              <InteractiveHoverButton>
+                Shop Now
+              </InteractiveHoverButton>
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop Layout - BentoGrid */}
+      <div className="hidden md:block">
+        <BentoGrid className="max-w-6xl mx-auto md:auto-rows-[20rem] md:grid-cols-4 relative z-10">
+          {/* Main banner info - spans 2 columns, no images */}
+          <BentoGridItem
+            className="md:col-span-2 border-none bg-transparent shadow-none"
+            title={
+              <div className="text-2xl md:text-3xl font-bold line-clamp-2 mb-4">
+                {bannerProduct.title}
+              </div>
+            }
+            description={
+              <div className="text-base text-muted-foreground line-clamp-4 mb-6">
+                {bannerProduct.description}
+              </div>
+            }
+            icon={
+              <Link href={`/products/${bannerProduct.id}`} className="inline-block">
+                <InteractiveHoverButton>
+                  View Product
+                </InteractiveHoverButton>
+              </Link>
+            }
+          />
+          
+          {/* Product images using TiltedCard - each takes 1 column */}
+          {displayImages.map((image, index) => (
+            <BentoGridItem
+              key={index}
+              className="md:col-span-1 border-none bg-transparent shadow-none p-2"
+              header={
+                <div className="w-full h-full">
+                  <TiltedCard
+                    imageSrc={image}
+                    altText={`${bannerProduct.title} - Image ${index + 1}`}
+                    containerHeight="100%"
+                    containerWidth="100%"
+                    imageHeight="280px"
+                    imageWidth="100%"
+                    scaleOnHover={1.05}
+                    rotateAmplitude={8}
+                    showMobileWarning={false}
+                    showTooltip={false}
+                  />
+                </div>
+              }
+            />
+          ))}
+          
+          {/* Fill remaining slots if less than 4 images */}
+          {displayImages.length < 4 && Array.from({ length: 4 - displayImages.length }).map((_, index) => (
+            <BentoGridItem
+              key={`placeholder-${index}`}
+              className="md:col-span-1 border-none bg-transparent shadow-none"
+              header={
+                <div className="flex flex-1 w-full h-full min-h-[6rem] rounded-xl bg-gradient-to-br from-neutral-100 dark:from-neutral-800 dark:to-neutral-700 to-neutral-50 opacity-50"></div>
+              }
+            />
+          ))}
+        </BentoGrid>
       </div>
     </div>
   );

@@ -9,7 +9,8 @@ interface ProductPageProps {
 }
 
 const ProductPage = async ({ params }: ProductPageProps) => {
-  const result = await getProductById(params.id);
+  const { id } = await params;
+  const result = await getProductById(id);
 
   if (!result.success || !result.data) {
     notFound();
