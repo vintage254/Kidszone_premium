@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import TiltedCard from '@/components/ui/tiltedcards';
@@ -11,6 +11,56 @@ const ProductsPage = () => {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+
+  // Flip text messages for different shop categories
+  const flipMessages = [
+    {
+      category: "Children Toys",
+      description: "Discover our amazing collection of educational and fun toys designed to inspire creativity and learning in children of all ages."
+    },
+    {
+      category: "Kids Furniture", 
+      description: "Explore our beautiful and safe furniture collection perfect for creating magical spaces where children can play, learn and grow."
+    },
+    {
+      category: "Baby Clothes",
+      description: "Browse our adorable and comfortable clothing range made from premium materials to keep your little ones cozy and stylish."
+    },
+    {
+      category: "Nursery Essentials",
+      description: "Find everything you need to create the perfect nursery with our curated collection of essentials for your precious bundle of joy."
+    }
+  ];
+
+  // Dynamically generate product categories for filtering
+  const productCategories = useMemo(() => {
+    if (!products) return [];
+
+    // Extract unique categories from products, filtering out any falsy values
+    const categories = [...new Set(products.map(p => p.category).filter(Boolean))];
+    
+    // Format for the filter buttons
+    const categoryOptions = categories.map(category => ({
+      value: category.toLowerCase(),
+      label: category,
+    }));
+
+    // Add 'All Products' to the beginning of the list
+    return [{ value: 'all', label: 'All Products' }, ...categoryOptions];
+  }, [products]);
+
+  // Filter products based on search and category
+  const filteredProducts = products.filter(product => {
+    const matchesSearch = product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         product.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || 
+                          (product.category && product.category.toLowerCase() === selectedCategory);
+    
+    return matchesSearch && matchesCategory;
+  });
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -30,6 +80,17 @@ const ProductsPage = () => {
 
     fetchProducts();
   }, []);
+
+  // Cycle through flip messages
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentMessageIndex((prevIndex) => 
+        (prevIndex + 1) % flipMessages.length
+      );
+    }, 4000); // Change message every 4 seconds
+
+    return () => clearInterval(interval);
+  }, [flipMessages.length]);
 
   // Hero carousel images
   const heroImages = [
@@ -54,15 +115,20 @@ const ProductsPage = () => {
             <div className="space-y-6">
               <div className="space-y-3">
                 <p className="text-sm font-medium text-gray-600 uppercase tracking-wider">
-                  Toys For All Ages
+                  Your One-Stop Baby & Kids Shop
                 </p>
-                <h1 className="text-3xl lg:text-5xl font-bold text-gray-900 leading-tight">
-                  Fantastic Toy
-                </h1>
-                <p className="text-base lg:text-lg text-gray-700 leading-relaxed max-w-md">
-                  There are many variations of passages of toys like industry 
-                  have suffered alteration in some form.
-                </p>
+                <div className="overflow-hidden h-16 lg:h-20">
+                  <h1 className="text-3xl lg:text-5xl font-bold text-gray-900 leading-tight">
+                    <span className="inline-block animate-flip-text">
+                      {flipMessages[currentMessageIndex].category}
+                    </span>
+                  </h1>
+                </div>
+                <div className="overflow-hidden h-20 lg:h-24">
+                  <p className="text-base lg:text-lg text-gray-700 leading-relaxed max-w-md animate-flip-text">
+                    {flipMessages[currentMessageIndex].description}
+                  </p>
+                </div>
               </div>
               
               <div className="pt-2 flex gap-4 items-center">
@@ -227,6 +293,60 @@ const ProductsPage = () => {
             </p>
           </div>
 
+          {/* Search and Filter Section */}
+          <div className="mb-8 bg-gray-50 rounded-2xl p-6">
+            <div className="flex flex-col lg:flex-row gap-6 items-center">
+              
+              {/* Search Bar */}
+              <div className="flex-1 w-full lg:max-w-md">
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Search products..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                  />
+                </div>
+              </div>
+
+              {/* Category Filter */}
+              <div className="w-full lg:w-auto">
+                <div className="flex flex-wrap gap-2 justify-center lg:justify-end">
+                  {productCategories.map((category) => (
+                    <button
+                      key={category.value}
+                      onClick={() => setSelectedCategory(category.value)}
+                      className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                        selectedCategory === category.value
+                          ? 'bg-blue-600 text-white shadow-lg transform scale-105'
+                          : 'bg-white text-gray-600 hover:bg-blue-50 hover:text-blue-600 shadow-md'
+                      }`}
+                    >
+                      {category.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Results Counter */}
+            <div className="mt-4 text-center">
+              <p className="text-sm text-gray-600">
+                {filteredProducts.length > 0 ? (
+                  <>Showing <span className="font-semibold">{filteredProducts.length}</span> of <span className="font-semibold">{products.length}</span> products</>
+                ) : (
+                  'No products found matching your criteria'
+                )}
+              </p>
+            </div>
+          </div>
+
           {loading && (
             <div className="flex items-center justify-center h-64">
               <p className="text-gray-500 text-lg">Loading products...</p>
@@ -239,12 +359,12 @@ const ProductsPage = () => {
             </div>
           )}
 
-          {!loading && !error && products.length > 0 && (
+          {!loading && !error && filteredProducts.length > 0 && (
             <>
               {/* Mobile Product Carousel */}
               <div className="block md:hidden mb-8">
                 <div className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar gap-6 pb-4">
-                  {products.map((product) => (
+                  {filteredProducts.map((product) => (
                     <div key={product.id} className="flex-none w-80 snap-start">
                       <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
                         <TiltedCard
@@ -289,7 +409,7 @@ const ProductsPage = () => {
 
               {/* Desktop Product Grid */}
               <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                {products.map((product) => (
+                {filteredProducts.map((product) => (
                   <div key={product.id} className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 hover:shadow-xl transition-shadow duration-300">
                     <TiltedCard
                       imageSrc={product.image1 || '/images/placeholder.png'}
