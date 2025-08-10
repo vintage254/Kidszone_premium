@@ -6,6 +6,7 @@ import { assets } from '../assets/assets';
 import Link from 'next/link';
 import { UserButton, useUser, SignedIn, SignedOut, SignInButton, SignUpButton } from '@clerk/nextjs';
 import { useAppContext } from '@/context/AppContext';
+import { usePathname } from 'next/navigation';
 
 interface AppContext {
   isSeller: boolean;
@@ -15,11 +16,22 @@ interface AppContext {
 }
 
 const Navbar = () => {
-  const [menu, setMenu] = useState('home');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const pathname = usePathname();
   
   const { router, getCartCount, isSeller }: AppContext = useAppContext();
+  
+  // Get current active menu based on pathname
+  const getCurrentMenu = () => {
+    if (pathname === '/') return 'home';
+    if (pathname.startsWith('/products')) return 'products';
+    if (pathname.startsWith('/about')) return 'about';
+    if (pathname.startsWith('/contact')) return 'contact';
+    return 'home';
+  };
+  
+  const menu = getCurrentMenu();
 
   // Handle scroll effect
   useEffect(() => {
@@ -32,8 +44,7 @@ const Navbar = () => {
   }, []);
 
   // Handle menu item clicks
-  const handleMenuClick = (menuItem: string, path: string) => {
-    setMenu(menuItem);
+  const handleMenuClick = (path: string) => {
     setMobileMenuOpen(false);
     router.push(path);
   };
@@ -63,7 +74,7 @@ const Navbar = () => {
         <div className="flex justify-between items-center">
           {/* Logo */}
           <div 
-            onClick={() => handleMenuClick('home', '/')} 
+            onClick={() => handleMenuClick('/')} 
             className="flex items-center gap-2 cursor-pointer group"
           >
             <div className="relative overflow-hidden rounded-xl">
@@ -84,12 +95,13 @@ const Navbar = () => {
           <ul className="hidden md:flex gap-8 relative">
             {[
               { name: 'Home', key: 'home', path: '/' },
+              { name: 'Products', key: 'products', path: '/products' },
               { name: 'About', key: 'about', path: '/about' },
               { name: 'Contact us', key: 'contact', path: '/contact' }
             ].map((item, index) => (
               <li key={item.key} className="relative">
                 <button
-                  onClick={() => handleMenuClick(item.key, item.path)}
+                  onClick={() => handleMenuClick(item.path)}
                   className={`cursor-pointer py-2 px-4 rounded-lg transition-all duration-300 relative overflow-hidden group ${
                     menu === item.key 
                       ? 'text-orange-600 font-semibold' 
@@ -120,7 +132,7 @@ const Navbar = () => {
             ))}
           </ul>
 
-          {/* Right side items */}
+          {/* Right side content: Desktop nav, auth, cart, admin, mobile menu button */}
           <div className="flex items-center gap-4">
             {/* Search Icon */}
             <button className="p-2 rounded-full hover:bg-gray-100 transition-all duration-300 hover:scale-110">
@@ -133,18 +145,19 @@ const Navbar = () => {
               />
             </button>
 
-            {/* Authentication buttons */}
-            <div className="flex items-center gap-4">
+            {/* Desktop-only buttons */}
+            <div className="hidden md:flex items-center gap-4">
+              {/* Auth buttons */}
               <SignedOut>
-                <div className="flex items-center gap-3">
-                  <SignInButton>
+                <div className="flex items-center gap-2">
+                  <SignInButton mode="modal">
                     <button 
-                      className="px-6 py-2 rounded-full border-2 border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white transition-all duration-300 hover:scale-105 hover:shadow-lg font-medium"
+                      className="px-6 py-2 rounded-full bg-gray-100 text-gray-800 hover:bg-gray-200 transition-all duration-300 hover:scale-105 font-medium"
                     >
                       Sign In
                     </button>
                   </SignInButton>
-                  <SignUpButton>
+                  <SignUpButton mode="modal">
                     <button 
                       className="px-6 py-2 rounded-full bg-orange-600 text-white hover:bg-orange-700 transition-all duration-300 hover:scale-105 hover:shadow-lg font-medium"
                     >
@@ -156,36 +169,36 @@ const Navbar = () => {
               <SignedIn>
                 <UserButton afterSignOutUrl="/" />
               </SignedIn>
-            </div>
 
-            {/* Cart icon with count */}
-            <button 
-              onClick={() => router.push('/cart')} 
-              className="relative p-2 rounded-full hover:bg-gray-100 transition-all duration-300 hover:scale-110 group"
-            >
-              <Image 
-                className="w-6 transition-transform duration-300 group-hover:scale-110" 
-                src={assets.cart_icon} 
-                alt="Cart" 
-                width={24} 
-                height={24} 
-              />
-              {getCartCount() > 0 && (
-                <div className="absolute -top-1 -right-1 w-5 h-5 bg-orange-600 rounded-full flex justify-center items-center text-white text-xs font-bold animate-pulse">
-                  {getCartCount()}
-                </div>
-              )}
-            </button>
-
-            {/* Admin dashboard link for admin users */}
-            {isSeller && (
+              {/* Cart icon with count */}
               <button 
-                onClick={() => router.push('/admin')} 
-                className="px-6 py-2 rounded-full bg-orange-600 text-white hover:bg-orange-700 transition-all duration-300 hover:scale-105 hover:shadow-lg font-medium"
+                onClick={() => router.push('/cart')} 
+                className="relative p-2 rounded-full hover:bg-gray-100 transition-all duration-300 hover:scale-110 group"
               >
-                Admin Dashboard
+                <Image 
+                  className="w-6 transition-transform duration-300 group-hover:scale-110" 
+                  src={assets.cart_icon} 
+                  alt="Cart" 
+                  width={24} 
+                  height={24} 
+                />
+                {getCartCount() > 0 && (
+                  <div className="absolute -top-1 -right-1 w-5 h-5 bg-orange-600 rounded-full flex justify-center items-center text-white text-xs font-bold animate-pulse">
+                    {getCartCount()}
+                  </div>
+                )}
               </button>
-            )}
+
+              {/* Admin dashboard link for admin users */}
+              {isSeller && (
+                <button 
+                  onClick={() => router.push('/admin')} 
+                  className="px-6 py-2 rounded-full bg-orange-600 text-white hover:bg-orange-700 transition-all duration-300 hover:scale-105 hover:shadow-lg font-medium"
+                >
+                  Admin Dashboard
+                </button>
+              )}
+            </div>
 
             {/* Mobile menu button */}
             <button
@@ -218,21 +231,22 @@ const Navbar = () => {
 
         {/* Mobile Menu */}
         <div 
-          className={`md:hidden overflow-hidden transition-all duration-500 ease-in-out ${
+          className={`md:hidden overflow-y-auto transition-all duration-500 ease-in-out ${
             mobileMenuOpen 
-              ? 'max-h-96 opacity-100' 
+              ? 'max-h-[calc(100vh-80px)] opacity-100' 
               : 'max-h-0 opacity-0'
           }`}
         >
           <div className="py-4 space-y-2">
-            {[
+            {[ // Nav links
               { name: 'Home', key: 'home', path: '/' },
+              { name: 'Products', key: 'products', path: '/products' },
               { name: 'About', key: 'about', path: '/about' },
               { name: 'Contact us', key: 'contact', path: '/contact' }
             ].map((item, index) => (
               <button
                 key={item.key}
-                onClick={() => handleMenuClick(item.key, item.path)}
+                onClick={() => handleMenuClick(item.path)}
                 className={`block w-full text-left px-4 py-3 rounded-lg transition-all duration-300 ${
                   menu === item.key
                     ? 'bg-orange-600 text-white transform translate-x-2'
@@ -245,6 +259,63 @@ const Navbar = () => {
                 {item.name}
               </button>
             ))}
+
+            {/* Divider */}
+            <div className="pt-4 mt-4 border-t border-gray-200 space-y-4">
+              {/* Cart and Admin buttons */}
+              <div className="flex items-center justify-between px-4">
+                <button 
+                  onClick={() => router.push('/cart')} 
+                  className="relative p-2 rounded-full hover:bg-gray-100 transition-all duration-300 group flex items-center gap-2"
+                >
+                  <Image 
+                    className="w-6" 
+                    src={assets.cart_icon} 
+                    alt="Cart" 
+                    width={24} 
+                    height={24} 
+                  />
+                  <span className='text-gray-700 font-medium'>Cart</span>
+                  {getCartCount() > 0 && (
+                    <div className="w-5 h-5 bg-orange-600 rounded-full flex justify-center items-center text-white text-xs font-bold">
+                      {getCartCount()}
+                    </div>
+                  )}
+                </button>
+
+                {isSeller && (
+                  <button 
+                    onClick={() => router.push('/admin')} 
+                    className="px-4 py-2 rounded-full bg-orange-500 text-white hover:bg-orange-600 transition-all duration-300 font-medium text-sm"
+                  >
+                    Admin
+                  </button>
+                )}
+              </div>
+
+              {/* Auth buttons */}
+              <div className="px-4">
+                <SignedIn>
+                  <div className="flex items-center justify-center py-2">
+                    <UserButton afterSignOutUrl="/" />
+                  </div>
+                </SignedIn>
+                <SignedOut>
+                  <div className="flex flex-col gap-3 pt-2">
+                    <SignInButton mode="modal">
+                      <button className="w-full px-6 py-3 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 transition-all duration-300 font-medium">
+                        Sign In
+                      </button>
+                    </SignInButton>
+                    <SignUpButton mode="modal">
+                      <button className="w-full px-6 py-3 rounded-lg bg-orange-600 text-white hover:bg-orange-700 transition-all duration-300 font-medium">
+                        Sign Up
+                      </button>
+                    </SignUpButton>
+                  </div>
+                </SignedOut>
+              </div>
+            </div>
           </div>
         </div>
       </div>

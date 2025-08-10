@@ -169,11 +169,11 @@ const ProductsPage = () => {
 
             {/* Hero Image */}
             <div className="relative">
-              <div className="relative z-10">
+              <div className="relative z-10 bg-gradient-to-br from-white/20 via-white/10 to-white/5 backdrop-blur-sm shadow-lg rounded-2xl p-3">
                 <img 
                   src="/products/hero.jpg" 
                   alt="Fantastic Toy Hero"
-                  className="w-full h-auto rounded-2xl shadow-2xl"
+                  className="w-full h-auto rounded-xl shadow-2xl"
                 />
               </div>
               
@@ -203,7 +203,7 @@ const ProductsPage = () => {
               <div className="flex animate-infinite-scroll gap-6">
                 {/* First set of images */}
                 {heroImages.map((image, index) => (
-                  <div key={`mobile-1-${index}`} className="flex-none w-72">
+                  <div key={`mobile-1-${index}`} className="flex-none w-72 bg-gradient-to-br from-white/30 via-white/20 to-white/10 backdrop-blur-sm shadow-lg rounded-2xl p-3">
                     <TiltedCard
                       imageSrc={image}
                       altText={`Collection ${index + 1}`}
@@ -220,7 +220,7 @@ const ProductsPage = () => {
                 ))}
                 {/* Duplicate set for seamless loop */}
                 {heroImages.map((image, index) => (
-                  <div key={`mobile-2-${index}`} className="flex-none w-72">
+                  <div key={`mobile-2-${index}`} className="flex-none w-72 bg-gradient-to-br from-white/30 via-white/20 to-white/10 backdrop-blur-sm shadow-lg rounded-2xl p-3">
                     <TiltedCard
                       imageSrc={image}
                       altText={`Collection ${index + 1}`}
@@ -243,7 +243,7 @@ const ProductsPage = () => {
               <div className="flex animate-infinite-scroll-desktop gap-8">
                 {/* First set of images */}
                 {heroImages.map((image, index) => (
-                  <div key={`desktop-1-${index}`} className="flex-none w-80">
+                  <div key={`desktop-1-${index}`} className="flex-none w-80 bg-gradient-to-br from-white/30 via-white/20 to-white/10 backdrop-blur-sm shadow-lg rounded-2xl p-3">
                     <TiltedCard
                       imageSrc={image}
                       altText={`Collection ${index + 1}`}
@@ -260,7 +260,7 @@ const ProductsPage = () => {
                 ))}
                 {/* Duplicate set for seamless loop */}
                 {heroImages.map((image, index) => (
-                  <div key={`desktop-2-${index}`} className="flex-none w-80">
+                  <div key={`desktop-2-${index}`} className="flex-none w-80 bg-gradient-to-br from-white/30 via-white/20 to-white/10 backdrop-blur-sm shadow-lg rounded-2xl p-3">
                     <TiltedCard
                       imageSrc={image}
                       altText={`Collection ${index + 1}`}
@@ -294,7 +294,7 @@ const ProductsPage = () => {
           </div>
 
           {/* Search and Filter Section */}
-          <div className="mb-8 bg-gray-50 rounded-2xl p-6">
+          <div className="mb-8 bg-gradient-to-br from-white/40 via-white/30 to-white/20 backdrop-blur-sm shadow-lg rounded-2xl p-6 border border-white/20">
             <div className="flex flex-col lg:flex-row gap-6 items-center">
               
               {/* Search Bar */}
@@ -366,7 +366,7 @@ const ProductsPage = () => {
                 <div className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar gap-6 pb-4">
                   {filteredProducts.map((product) => (
                     <div key={product.id} className="flex-none w-80 snap-start">
-                      <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
+                      <div className="bg-gradient-to-br from-white/50 via-white/40 to-white/30 backdrop-blur-sm shadow-lg rounded-xl overflow-hidden border border-white/20">
                         <TiltedCard
                           imageSrc={product.image1 || '/images/placeholder.png'}
                           altText={product.title}
@@ -410,7 +410,7 @@ const ProductsPage = () => {
               {/* Desktop Product Grid */}
               <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                 {filteredProducts.map((product) => (
-                  <div key={product.id} className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 hover:shadow-xl transition-shadow duration-300">
+                  <div key={product.id} className="bg-gradient-to-br from-white/50 via-white/40 to-white/30 backdrop-blur-sm shadow-lg rounded-xl overflow-hidden border border-white/20 hover:shadow-xl transition-all duration-300">
                     <TiltedCard
                       imageSrc={product.image1 || '/images/placeholder.png'}
                       altText={product.title}

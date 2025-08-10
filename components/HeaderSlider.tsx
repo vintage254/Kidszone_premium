@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { assets } from '../assets/assets';
+import Link from 'next/link';
+import { ShimmerButton } from './ui/shimmerbutton';
 
 interface Slide {
   id: number;
@@ -45,7 +47,7 @@ const HeaderSlider = () => {
   }, []);
 
   return (
-    <div className="relative w-full h-[500px] overflow-hidden rounded-xl">
+    <div className="relative w-full h-[500px] overflow-hidden rounded-xl bg-gradient-to-br from-white/20 via-white/10 to-white/5 backdrop-blur-sm shadow-lg">
       {slides.map((slide, index) => (
         <div
           key={slide.id}
@@ -63,16 +65,43 @@ const HeaderSlider = () => {
             }}
             className="w-full h-full"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent flex flex-col justify-center items-start p-12">
-            <h2 className="text-white text-4xl font-bold max-w-md drop-shadow-lg">
+          <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent flex flex-col md:justify-center justify-start md:items-start items-start md:p-12 p-6 pt-8">
+            {/* Heading - desktop centered, mobile higher up */}
+            <h2 className="text-white text-4xl md:text-4xl text-2xl font-bold max-w-md drop-shadow-lg">
               {slide.title}
             </h2>
-            <p className="text-white text-lg mt-4 max-w-lg drop-shadow-md">
+            
+            {/* Desktop description - full size, under heading */}
+            <p className="hidden md:block text-white text-lg mt-4 max-w-lg drop-shadow-md">
               {slide.description}
             </p>
-            <button className="mt-6 px-8 py-3 bg-orange-600 text-white font-semibold rounded-full hover:bg-orange-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
-              Shop Now
-            </button>
+            
+            {/* Desktop Shop Now button - under description */}
+            <Link href="/products" className="hidden md:block mt-6">
+              <ShimmerButton
+                background="linear-gradient(to right, #ff7e5f, #feb47b)"
+                className="px-8 py-3 font-semibold shadow-lg"
+              >
+                Shop Now
+              </ShimmerButton>
+            </Link>
+            
+            {/* Mobile Shop Now button - positioned higher, brighter */}
+            <Link href="/products" className="block md:hidden mt-3">
+              <ShimmerButton
+                background="linear-gradient(to right, #ff4500, #ff6347, #ffa500)"
+                className="px-6 py-2 font-bold shadow-xl text-sm"
+              >
+                Shop Now
+              </ShimmerButton>
+            </Link>
+          </div>
+          
+          {/* Mobile description - bottom right, darker color for contrast */}
+          <div className="absolute bottom-16 right-4 block md:hidden">
+            <p className="text-gray-800 text-xs max-w-xs drop-shadow-lg text-right font-medium">
+              {slide.description}
+            </p>
           </div>
         </div>
       ))}

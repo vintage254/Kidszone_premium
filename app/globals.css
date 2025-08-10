@@ -102,6 +102,48 @@
       opacity: 1;
     }
   }
+
+  /* Tilted Card Styles */
+  .tilted-card-figure {
+    @apply relative flex items-center justify-center cursor-pointer;
+    perspective: 1000px;
+  }
+
+  .tilted-card-inner {
+    @apply relative;
+    transform-style: preserve-3d;
+    border-radius: 1.5rem;
+    overflow: hidden;
+    box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.05);
+  }
+
+  .tilted-card-img {
+    @apply block rounded-3xl object-cover;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  .tilted-card-overlay {
+    @apply absolute inset-0 flex items-center justify-center;
+    background: rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(2px);
+    border-radius: 1.5rem;
+  }
+
+  .tilted-card-caption {
+    @apply absolute pointer-events-none z-10 px-3 py-2 bg-white text-gray-900 text-sm font-medium rounded-lg shadow-lg;
+    transform-origin: center;
+  }
+
+  .tilted-card-mobile-alert {
+    @apply absolute top-2 left-2 right-2 bg-amber-100 text-amber-800 px-3 py-2 rounded-lg text-xs font-medium text-center z-20;
+  }
+
+  @media (min-width: 768px) {
+    .tilted-card-mobile-alert {
+      @apply hidden;
+    }
+  }
 }
 
 @layer components {

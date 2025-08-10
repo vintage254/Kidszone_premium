@@ -66,7 +66,7 @@ const FeaturedProduct = () => {
           <div className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar gap-6 pb-4">
             {products.map((product) => (
               <div key={product.id} className="flex-none w-80 snap-start">
-                <div className="space-y-4">
+                <div className="space-y-4 bg-gradient-to-br from-white/30 via-white/20 to-white/10 backdrop-blur-sm shadow-lg rounded-2xl p-4">
                   <TiltedCard
                     imageSrc={product.image1 || '/images/placeholder.png'}
                     altText={product.title}
@@ -105,7 +105,7 @@ const FeaturedProduct = () => {
       <div className="hidden sm:block">
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-14 mt-12 md:px-14 px-4">
           {products.map((product) => (
-            <div key={product.id} className="space-y-4">
+            <div key={product.id} className="space-y-4 bg-gradient-to-br from-white/30 via-white/20 to-white/10 backdrop-blur-sm shadow-lg rounded-2xl p-4">
               <TiltedCard
                 imageSrc={product.image1 || '/images/placeholder.png'}
                 altText={product.title}

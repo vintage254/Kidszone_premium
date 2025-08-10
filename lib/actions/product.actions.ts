@@ -3,7 +3,7 @@
 import { productFormSchema, type ProductFormValues } from "@/lib/validators/product";
 import { db } from "@/database/drizzle";
 import { products } from "@/database/schema";
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, and, ne } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -152,5 +152,35 @@ export async function getProductById(productId: string) {
   } catch (error) {
     console.error("Database Error:", error);
     return { success: false, message: "Database Error: Failed to fetch product." };
+  }
+}
+
+export async function getProductsByCategory(category: string, excludeId?: string) {
+  try {
+    let categoryProducts;
+    
+    if (excludeId) {
+      categoryProducts = await db.select().from(products).where(
+        and(
+          eq(products.category, category),
+          ne(products.id, excludeId)
+        )
+      ).orderBy(desc(products.createdAt));
+    } else {
+      categoryProducts = await db.select().from(products).where(
+        eq(products.category, category)
+      ).orderBy(desc(products.createdAt));
+    }
+    
+    return {
+      success: true,
+      data: categoryProducts,
+    };
+  } catch (error) {
+    console.error("Database Error:", error);
+    return {
+      success: false,
+      message: "Database Error: Failed to fetch products by category.",
+    };
   }
 }

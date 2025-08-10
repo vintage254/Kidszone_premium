@@ -674,7 +674,7 @@ function CircularGallery({
       app.destroy();
     };
   }, [items, bend, textColor, borderRadius, font, scrollSpeed, scrollEase]);
-  return <div className="circular-gallery" ref={containerRef} />;
+  return <div className="circular-gallery bg-gradient-to-br from-white/20 via-white/10 to-white/5 backdrop-blur-sm rounded-xl" ref={containerRef} />;
 }
 
 // Function to truncate text with ellipsis
@@ -737,7 +737,7 @@ export default function HomeProductMenu() {
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <h2 className="text-3xl font-bold tracking-tight text-gray-900 mb-8">Popular Products</h2>
-      <div className="h-96">
+      <div className="h-96 bg-gradient-to-br from-white/30 via-white/20 to-white/10 backdrop-blur-sm shadow-lg rounded-2xl p-6">
         <CircularGallery 
           items={products}
           bend={3}

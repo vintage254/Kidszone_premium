@@ -1,72 +1,338 @@
-import { getProductById } from "@/lib/actions/product.actions";
+'use client';
+
+import { useEffect, useState } from "react";
+import { getProductById, getProductsByCategory } from "@/lib/actions/product.actions";
 import { notFound } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import { BuyNowButton } from "@/components/products/BuyNowButton";
 import { PayPalButtonsWrapper } from "@/components/products/PayPalButtonsWrapper";
+import TiltedCard from "@/components/ui/tiltedcards";
+import { InteractiveHoverButton } from "@/components/ui/interactivebutton";
+import { Star, Heart, ChevronLeft, ChevronRight } from "lucide-react";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 interface ProductPageProps {
   params: { id: string };
 }
 
-const ProductPage = async ({ params }: ProductPageProps) => {
-  const { id } = await params;
-  const result = await getProductById(id);
+interface Product {
+  id: string;
+  title: string;
+  description: string;
+  price: string;
+  category: string;
+  image1: string | null;
+  image2: string | null;
+  image3: string | null;
+  image4: string | null;
+  isFeatured: boolean;
+  isBanner: boolean;
+  createdAt: Date | null;
+}
 
-  if (!result.success || !result.data) {
-    notFound();
+const ProductPage = ({ params }: ProductPageProps) => {
+  const [product, setProduct] = useState<Product | null>(null);
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [selectedSize, setSelectedSize] = useState('');
+  const [childAge, setChildAge] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [imageCarouselIndex, setImageCarouselIndex] = useState(0);
+  const [relatedCarouselIndex, setRelatedCarouselIndex] = useState(0);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const resolvedParams = await params;
+      const { id } = resolvedParams;
+      const result = await getProductById(id);
+
+      if (!result.success || !result.data) {
+        notFound();
+      }
+
+      const productData = result.data;
+      setProduct(productData);
+
+      // Fetch related products from the same category
+      const relatedResult = await getProductsByCategory(productData.category, id);
+      if (relatedResult.success && relatedResult.data) {
+        setRelatedProducts(relatedResult.data);
+      }
+
+      setLoading(false);
+    };
+
+    fetchData();
+  }, [params]);
+
+  if (loading) {
+    return (
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="animate-pulse">
+          <div className="grid lg:grid-cols-2 gap-16">
+            <div className="bg-gray-200 aspect-square rounded-3xl"></div>
+            <div className="space-y-4">
+              <div className="h-8 bg-gray-200 rounded w-3/4"></div>
+              <div className="h-6 bg-gray-200 rounded w-1/4"></div>
+              <div className="h-20 bg-gray-200 rounded"></div>
+            </div>
+          </div>
+        </div>
+      </main>
+    );
   }
 
-  const { data: product } = result;
+  if (!product) return null;
+
   const images = [product.image1, product.image2, product.image3, product.image4].filter(Boolean) as string[];
+  const sizes = ['Small (2-4 years)', 'Medium (5-7 years)', 'Large (8-10 years)', 'XL (11+ years)'];
+  const rating = 4.5; // Mock rating
+  const reviewCount = 441; // Mock review count
 
   return (
-    <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="grid md:grid-cols-2 gap-12">
-        <div>
-          <div className="relative aspect-square rounded-lg overflow-hidden mb-4">
-            <Image 
-              src={images[0] || '/images/placeholder.png'} 
-              alt={product.title}
-              fill
-              className="object-cover"
+    <>
+      <Navbar />
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="grid lg:grid-cols-2 gap-16 mb-16">
+        {/* Product Images Carousel */}
+        <div className="space-y-6">
+          <div className="relative">
+            <TiltedCard
+              imageSrc={images[imageCarouselIndex] || '/images/placeholder.png'}
+              altText={product.title}
+              containerHeight="500px"
+              containerWidth="100%"
+              imageHeight="500px"
+              imageWidth="100%"
+              scaleOnHover={1.05}
+              rotateAmplitude={8}
+              showMobileWarning={false}
+              showTooltip={false}
+              displayOverlayContent={false}
             />
+            <button className="absolute top-4 right-4 p-2 bg-white/80 hover:bg-white rounded-full shadow-lg transition-all duration-200 hover:scale-110">
+              <Heart className="w-5 h-5 text-gray-600" />
+            </button>
+            
+            {/* Image Navigation */}
+            {images.length > 1 && (
+              <>
+                <button
+                  onClick={() => setImageCarouselIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1))}
+                  className="absolute left-4 top-1/2 transform -translate-y-1/2 p-2 bg-white/80 hover:bg-white rounded-full shadow-lg transition-all duration-200 hover:scale-110"
+                >
+                  <ChevronLeft className="w-5 h-5 text-gray-600" />
+                </button>
+                <button
+                  onClick={() => setImageCarouselIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1))}
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 p-2 bg-white/80 hover:bg-white rounded-full shadow-lg transition-all duration-200 hover:scale-110"
+                >
+                  <ChevronRight className="w-5 h-5 text-gray-600" />
+                </button>
+              </>
+            )}
           </div>
-          <div className="grid grid-cols-4 gap-2">
-            {images.slice(1).map((img, index) => (
-              <div key={index} className="relative aspect-square rounded-lg overflow-hidden">
-                <Image 
-                  src={img} 
-                  alt={`${product.title} thumbnail ${index + 1}`}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900 mb-2">{product.title}</h1>
-          <p className="text-2xl font-bold text-primary mb-6">${product.price}</p>
-          <p className="text-base text-gray-700 mb-8">{product.description}</p>
           
-          <div className="space-y-4">
-            <BuyNowButton productId={product.id} />
-            <div className="relative text-center my-2">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t"></span>
-              </div>
-              <span className="relative bg-background px-2 text-xs uppercase text-muted-foreground">Or pay with</span>
+          {/* Image Indicators */}
+          {images.length > 1 && (
+            <div className="flex gap-2 justify-center">
+              {images.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setImageCarouselIndex(index)}
+                  className={`w-3 h-3 rounded-full transition-all duration-200 ${
+                    imageCarouselIndex === index 
+                      ? 'bg-blue-500 scale-110' 
+                      : 'bg-gray-300 hover:bg-gray-400'
+                  }`}
+                />
+              ))}
             </div>
-            <PayPalButtonsWrapper productId={product.id} />
+          )}
+        </div>
+
+        {/* Product Info */}
+        <div className="space-y-8">
+          <div>
+            <h1 className="text-4xl font-bold text-gray-900 mb-3 leading-tight">
+              {product.title}
+            </h1>
+            
+            {/* Rating */}
+            <div className="flex items-center gap-2 mb-4">
+              <div className="flex">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className={`w-4 h-4 ${
+                      i < Math.floor(rating) 
+                        ? 'fill-yellow-400 text-yellow-400' 
+                        : i === Math.floor(rating) && rating % 1 !== 0
+                        ? 'fill-yellow-400/50 text-yellow-400'
+                        : 'text-gray-300'
+                    }`}
+                  />
+                ))}
+              </div>
+              <span className="text-sm text-gray-600">
+                {reviewCount} reviews
+              </span>
+            </div>
+
+            <p className="text-3xl font-bold text-gray-900 mb-6">
+              $ {parseFloat(product.price).toFixed(2)}
+            </p>
+            
+            <p className="text-gray-600 text-lg leading-relaxed">
+              {product.description}
+            </p>
           </div>
 
-          <div className="mt-8">
-            <h2 className="text-lg font-semibold text-gray-900">Category</h2>
-            <p className="text-gray-600">{product.category}</p>
+          {/* Size Selection */}
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Size</h3>
+            <div className="grid grid-cols-2 gap-3">
+              {sizes.map((size, index) => (
+                <button
+                  key={index}
+                  onClick={() => setSelectedSize(size)}
+                  className={`py-3 px-4 rounded-xl border-2 text-sm font-medium transition-all duration-200 hover:scale-[1.02] ${
+                    selectedSize === size 
+                      ? 'border-blue-500 bg-blue-50 text-blue-700' 
+                      : 'border-gray-200 hover:border-gray-300 text-gray-700'
+                  }`}
+                >
+                  {size}
+                </button>
+              ))}
+            </div>
           </div>
+
+          {/* Child Age Input */}
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Child's Age</h3>
+            <div className="relative">
+              <input
+                type="number"
+                min="1"
+                max="18"
+                value={childAge}
+                onChange={(e) => setChildAge(e.target.value)}
+                placeholder="Enter child's age"
+                className="w-full py-3 px-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors duration-200"
+              />
+              <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">
+                years
+              </span>
+            </div>
+            <p className="text-sm text-gray-500 mt-2">
+              This helps us recommend the best fit for your child
+            </p>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="space-y-4">
+            <BuyNowButton productId={product.id} />
+            <button className="w-full py-4 px-6 bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold rounded-2xl transition-all duration-200 hover:scale-[1.02]">
+              Add to basket
+            </button>
+          </div>
+
+
         </div>
       </div>
-    </main>
+
+      {/* Related Products Section */}
+      <div className="border-t border-gray-200 pt-12">
+        <h2 className="text-2xl font-bold text-gray-900 mb-8">
+          More from {product.category}
+        </h2>
+        
+        {relatedProducts.length > 0 ? (
+          <div className="relative">
+            <div className="overflow-hidden">
+              <div 
+                className="flex transition-transform duration-300 ease-in-out"
+                style={{ 
+                  transform: `translateX(-${relatedCarouselIndex * 100}%)`,
+                  width: `${Math.ceil(relatedProducts.length / 4) * 100}%`
+                }}
+              >
+                {Array.from({ length: Math.ceil(relatedProducts.length / 4) }, (_, pageIndex) => (
+                  <div key={pageIndex} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full flex-shrink-0">
+                    {relatedProducts.slice(pageIndex * 4, (pageIndex + 1) * 4).map((relatedProduct) => {
+                      const relatedImages = [relatedProduct.image1, relatedProduct.image2, relatedProduct.image3, relatedProduct.image4].filter(Boolean) as string[];
+                      
+                      return (
+                        <div key={relatedProduct.id} className="group">
+                          <div className="relative aspect-square mb-4 rounded-2xl overflow-hidden bg-gray-100">
+                            <Image
+                              src={relatedImages[0] || '/images/placeholder.png'}
+                              alt={relatedProduct.title}
+                              fill
+                              className="object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <h3 className="font-semibold text-gray-900 mb-1 group-hover:text-blue-600 transition-colors line-clamp-2">
+                              {relatedProduct.title}
+                            </h3>
+                            <p className="text-lg font-bold text-gray-900">
+                              $ {parseFloat(relatedProduct.price).toFixed(2)}
+                            </p>
+                            <Link href={`/products/${relatedProduct.id}`}>
+                              <InteractiveHoverButton className="w-full mt-2">
+                                View Product
+                              </InteractiveHoverButton>
+                            </Link>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            {/* Carousel Navigation */}
+            {Math.ceil(relatedProducts.length / 4) > 1 && (
+              <>
+                <button
+                  onClick={() => setRelatedCarouselIndex((prev) => (prev === 0 ? Math.ceil(relatedProducts.length / 4) - 1 : prev - 1))}
+                  className="absolute left-4 top-1/2 transform -translate-y-1/2 p-2 bg-white hover:bg-gray-50 rounded-full shadow-lg transition-all duration-200 hover:scale-110 border border-gray-200"
+                >
+                  <ChevronLeft className="w-5 h-5 text-gray-600" />
+                </button>
+                <button
+                  onClick={() => setRelatedCarouselIndex((prev) => (prev === Math.ceil(relatedProducts.length / 4) - 1 ? 0 : prev + 1))}
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 p-2 bg-white hover:bg-gray-50 rounded-full shadow-lg transition-all duration-200 hover:scale-110 border border-gray-200"
+                >
+                  <ChevronRight className="w-5 h-5 text-gray-600" />
+                </button>
+              </>
+            )}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <div className="text-gray-400 mb-4">
+              <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M6 18l6-3" />
+              </svg>
+            </div>
+            <p className="text-lg font-medium text-gray-600 mb-2">
+              No other products in {product.category}
+            </p>
+            <p className="text-gray-500">
+              This is the only product in this category right now.
+            </p>
+          </div>
+        )}
+      </div>
+      </main>
+      <Footer />
+    </>
   );
 };
 

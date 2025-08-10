@@ -109,6 +109,20 @@ export const Banner = () => {
                 Shop Now
               </InteractiveHoverButton>
             </Link>
+            
+            {/* Mobile Monthly Offer CTA */}
+            <div className="mt-8 p-4 bg-gradient-to-br from-orange-500/20 via-orange-400/10 to-orange-300/20 backdrop-blur-sm rounded-2xl border border-orange-200">
+              <div className="text-2xl font-bold text-orange-600 mb-2">🎉 20% OFF</div>
+              <div className="text-lg font-semibold text-gray-800 mb-2">Monthly Special!</div>
+              <div className="text-sm text-gray-600 mb-4">
+                Limited time offer on all premium kids products
+              </div>
+              <Link href="/products" className="inline-block">
+                <InteractiveHoverButton className="bg-orange-600 text-white hover:bg-orange-700">
+                  Claim Offer
+                </InteractiveHoverButton>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -118,7 +132,7 @@ export const Banner = () => {
         <BentoGrid className="max-w-6xl mx-auto md:auto-rows-[20rem] md:grid-cols-4 relative z-10">
           {/* Main banner info - spans 2 columns, no images */}
           <BentoGridItem
-            className="md:col-span-2 border-none bg-transparent shadow-none"
+            className="md:col-span-2 border-none bg-gradient-to-br from-white/50 via-white/30 to-white/20 backdrop-blur-sm shadow-lg rounded-2xl"
             title={
               <div className="text-2xl md:text-3xl font-bold line-clamp-2 mb-4">
                 {bannerProduct.title}
@@ -138,11 +152,13 @@ export const Banner = () => {
             }
           />
           
+
+          
           {/* Product images using TiltedCard - each takes 1 column */}
           {displayImages.map((image, index) => (
             <BentoGridItem
               key={index}
-              className="md:col-span-1 border-none bg-transparent shadow-none p-2"
+              className="md:col-span-1 border-none bg-gradient-to-br from-white/30 via-white/20 to-white/10 backdrop-blur-sm shadow-lg rounded-2xl p-2"
               header={
                 <div className="w-full h-full">
                   <TiltedCard
@@ -162,16 +178,41 @@ export const Banner = () => {
             />
           ))}
           
-          {/* Fill remaining slots if less than 4 images */}
-          {displayImages.length < 4 && Array.from({ length: 4 - displayImages.length }).map((_, index) => (
+          {/* Fill remaining slots if less than 3 images (since we reserve 1 slot for the offer) */}
+          {displayImages.length < 3 && Array.from({ length: 3 - displayImages.length }).map((_, index) => (
             <BentoGridItem
               key={`placeholder-${index}`}
-              className="md:col-span-1 border-none bg-transparent shadow-none"
+              className="md:col-span-1 border-none bg-gradient-to-br from-white/20 via-white/10 to-white/5 backdrop-blur-sm shadow-lg rounded-2xl"
               header={
                 <div className="flex flex-1 w-full h-full min-h-[6rem] rounded-xl bg-gradient-to-br from-neutral-100 dark:from-neutral-800 dark:to-neutral-700 to-neutral-50 opacity-50"></div>
               }
             />
           ))}
+          
+          {/* Monthly Offer Card - spans 1 column - MOVED TO LAST POSITION */}
+          <BentoGridItem
+            className="md:col-span-1 border-none bg-gradient-to-br from-orange-500/10 via-orange-400/5 to-orange-300/10 backdrop-blur-sm shadow-lg rounded-2xl"
+            title={
+              <div className="text-center">
+                <div className="text-3xl font-bold text-orange-600 mb-2">20% OFF</div>
+                <div className="text-lg font-semibold text-gray-800">Monthly Offer</div>
+              </div>
+            }
+            description={
+              <div className="text-sm text-gray-600 text-center mb-4">
+                Special discount on all premium kids products this month!
+              </div>
+            }
+            icon={
+              <div className="flex justify-center">
+                <Link href="/products" className="inline-block">
+                  <InteractiveHoverButton className="bg-orange-600 text-white hover:bg-orange-700">
+                    Shop Now
+                  </InteractiveHoverButton>
+                </Link>
+              </div>
+            }
+          />
         </BentoGrid>
       </div>
     </div>
