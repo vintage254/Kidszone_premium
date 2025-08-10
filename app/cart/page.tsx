@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useAppContext } from "@/context/AppContext";
 import Image from "next/image";
-import { assets } from "@/assets/assets";
+import { getProductImages, getProductPrice } from "@/types";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,13 +18,15 @@ const CartPage = () => {
   useEffect(() => {
     const data = [];
     for (const itemId in cartItems) {
-      const itemInfo = products.find((product) => product._id === itemId);
+      const itemInfo = products.find((product) => product.id === itemId);
       if (itemInfo) {
         for (const size in cartItems[itemId]) {
           data.push({
             ...itemInfo,
             size,
-            quantity: cartItems[itemId][size]
+            quantity: cartItems[itemId][size],
+            images: getProductImages(itemInfo),
+            numericPrice: getProductPrice(itemInfo)
           });
         }
       }
@@ -56,22 +58,22 @@ const CartPage = () => {
                 <div key={index} className="flex items-center gap-4 border-b pb-4">
                   <div className="relative w-24 h-24">
                     <Image 
-                      src={item.image[0]} 
-                      alt={item.name} 
+                      src={item.images[0] || '/images/placeholder.png'} 
+                      alt={item.title} 
                       fill 
                       className="object-cover rounded-lg"
                     />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-semibold">{item.name}</h3>
+                    <h3 className="font-semibold">{item.title}</h3>
                     <p className="text-gray-600">Size: {item.size}</p>
-                    <p className="font-bold">{currency}{item.price}</p>
+                    <p className="font-bold">{currency}{item.numericPrice.toFixed(2)}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <Button 
                       variant="outline" 
                       size="sm" 
-                      onClick={() => updateQuantity(item._id, item.size, item.quantity - 1)}
+                      onClick={() => updateQuantity(item.id, item.size, item.quantity - 1)}
                       disabled={item.quantity <= 1}
                     >
                       -
@@ -80,7 +82,7 @@ const CartPage = () => {
                     <Button 
                       variant="outline" 
                       size="sm" 
-                      onClick={() => updateQuantity(item._id, item.size, item.quantity + 1)}
+                      onClick={() => updateQuantity(item.id, item.size, item.quantity + 1)}
                     >
                       +
                     </Button>
@@ -88,7 +90,7 @@ const CartPage = () => {
                   <Button 
                     variant="destructive" 
                     size="sm" 
-                    onClick={() => updateQuantity(item._id, item.size, 0)}
+                    onClick={() => updateQuantity(item.id, item.size, 0)}
                   >
                     Remove
                   </Button>

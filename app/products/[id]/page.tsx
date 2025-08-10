@@ -4,11 +4,11 @@ import { useEffect, useState } from "react";
 import { getProductById, getProductsByCategory } from "@/lib/actions/product.actions";
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import Link from "next/link";
-import { BuyNowButton } from "@/components/products/BuyNowButton";
-import { PayPalButtonsWrapper } from "@/components/products/PayPalButtonsWrapper";
+import Link from 'next/link';
+import { useAppContext } from '@/context/AppContext';
 import TiltedCard from "@/components/ui/tiltedcards";
 import { InteractiveHoverButton } from "@/components/ui/interactivebutton";
+import { toast } from 'sonner';
 import { Star, Heart, ChevronLeft, ChevronRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -41,6 +41,10 @@ const ProductPage = ({ params }: ProductPageProps) => {
   const [loading, setLoading] = useState(true);
   const [imageCarouselIndex, setImageCarouselIndex] = useState(0);
   const [relatedCarouselIndex, setRelatedCarouselIndex] = useState(0);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  
+  // Get cart context
+  const { addToCart, cartItems, currency } = useAppContext();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -87,9 +91,57 @@ const ProductPage = ({ params }: ProductPageProps) => {
   if (!product) return null;
 
   const images = [product.image1, product.image2, product.image3, product.image4].filter(Boolean) as string[];
-  const sizes = ['Small (2-4 years)', 'Medium (5-7 years)', 'Large (8-10 years)', 'XL (11+ years)'];
+  const availableSizes = ['Small', 'Medium', 'Large', 'X-Large'];
   const rating = 4.5; // Mock rating
   const reviewCount = 441; // Mock review count
+
+  // Handle add to cart with validation
+  const handleAddToCart = async () => {
+    if (!product) return;
+    
+    // Validation
+    if (!selectedSize) {
+      toast.error('Please select a size');
+      return;
+    }
+    
+    if (!childAge.trim()) {
+      toast.error('Please enter your child\'s age');
+      return;
+    }
+    
+    const age = parseInt(childAge);
+    if (isNaN(age) || age < 1 || age > 18) {
+      toast.error('Please enter a valid age between 1-18 years');
+      return;
+    }
+    
+    setIsAddingToCart(true);
+    
+    try {
+      // Add to cart using the product ID and selected size
+      addToCart(product.id, selectedSize);
+      
+      // Show success message
+      toast.success(`${product.title} (${selectedSize}) added to cart!`);
+      
+      // Optional: Reset form
+      setSelectedSize('');
+      setChildAge('');
+      
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast.error('Failed to add item to cart. Please try again.');
+    } finally {
+      setIsAddingToCart(false);
+    }
+  };
+
+  // Get cart count for this specific product
+  const getProductCartCount = () => {
+    if (!product || !cartItems[product.id]) return 0;
+    return Object.values(cartItems[product.id]).reduce((total, qty) => total + qty, 0);
+  };
 
   return (
     <>
@@ -194,7 +246,7 @@ const ProductPage = ({ params }: ProductPageProps) => {
           <div>
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Size</h3>
             <div className="grid grid-cols-2 gap-3">
-              {sizes.map((size, index) => (
+              {availableSizes.map((size, index) => (
                 <button
                   key={index}
                   onClick={() => setSelectedSize(size)}
@@ -234,13 +286,24 @@ const ProductPage = ({ params }: ProductPageProps) => {
 
           {/* Action Buttons */}
           <div className="space-y-4">
-            <BuyNowButton productId={product.id} />
-            <button className="w-full py-4 px-6 bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold rounded-2xl transition-all duration-200 hover:scale-[1.02]">
-              Add to basket
+            <button 
+              onClick={handleAddToCart}
+              disabled={isAddingToCart || loading}
+              className="px-8 py-3 bg-gradient-to-r from-orange-400 to-pink-500 text-white rounded-full font-medium hover:shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            >
+              {isAddingToCart ? 'Adding...' : 'Add to basket'}
+              {getProductCartCount() > 0 && (
+                <span className="ml-2 bg-white text-orange-500 px-2 py-1 rounded-full text-sm font-bold">
+                  {getProductCartCount()}
+                </span>
+              )}
             </button>
+            <Link href="/cart">
+              <button className="px-8 py-3 bg-gray-800 text-white rounded-full font-medium hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                View Cart ({getProductCartCount()})
+              </button>
+            </Link>
           </div>
-
-
         </div>
       </div>
 

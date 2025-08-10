@@ -6,14 +6,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
+import { getProductPrice } from "@/types";
 import { PayPalButtonsWrapper } from "@/components/products/PayPalButtonsWrapper";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
+import Navbar from "@/components/Navbar";
 
 // Initialize Stripe
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 const CheckoutPage = () => {
+  <Navbar/>
   const { cartItems, products, getCartAmount, currency } = useAppContext();
   const router = useRouter();
   const [paymentMethod, setPaymentMethod] = useState<"stripe" | "paypal">("stripe");
@@ -76,16 +79,16 @@ const CheckoutPage = () => {
           <h2 className="text-xl font-bold mb-4">Order Summary</h2>
           <div className="space-y-4">
             {Object.entries(cartItems).map(([itemId, sizes]) => {
-              const product = products.find(p => p._id === itemId);
+              const product = products.find(p => p.id === itemId);
               if (!product) return null;
               
               return Object.entries(sizes).map(([size, quantity]) => (
                 <div key={`${itemId}-${size}`} className="flex justify-between items-center">
                   <div>
-                    <p className="font-semibold">{product.name}</p>
+                    <p className="font-semibold">{product.title}</p>
                     <p className="text-gray-600 text-sm">Size: {size} × {quantity}</p>
                   </div>
-                  <p>{currency}{(product.price * quantity).toFixed(2)}</p>
+                  <p>{currency}{(getProductPrice(product) * quantity).toFixed(2)}</p>
                 </div>
               ));
             })}
@@ -147,8 +150,10 @@ const CheckoutPage = () => {
                 currency={currency} 
                 onSuccess={() => {
                   // Handle successful payment
-                  alert("Payment successful!");
-                  router.push("/orders");
+                  alert("Payment successful! Thank you for your purchase.");
+                  // Clear cart after successful payment
+                  // Note: In a real app, this would be handled by the payment success callback
+                  router.push("/");
                 }} 
               />
             </div>

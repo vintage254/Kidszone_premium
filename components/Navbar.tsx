@@ -96,7 +96,7 @@ const Navbar = () => {
             {[
               { name: 'Home', key: 'home', path: '/' },
               { name: 'Products', key: 'products', path: '/products' },
-              { name: 'About', key: 'about', path: '/about' },
+              { name: 'About us', key: 'about', path: '/about' },
               { name: 'Contact us', key: 'contact', path: '/contact' }
             ].map((item, index) => (
               <li key={item.key} className="relative">
@@ -241,7 +241,7 @@ const Navbar = () => {
             {[ // Nav links
               { name: 'Home', key: 'home', path: '/' },
               { name: 'Products', key: 'products', path: '/products' },
-              { name: 'About', key: 'about', path: '/about' },
+              { name: 'About us', key: 'about', path: '/about' },
               { name: 'Contact us', key: 'contact', path: '/contact' }
             ].map((item, index) => (
               <button

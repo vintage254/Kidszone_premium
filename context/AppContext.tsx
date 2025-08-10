@@ -2,7 +2,8 @@
 import { useRouter } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 import { createContext, useContext, useEffect, useState, ReactNode, useMemo } from 'react';
-import { AppContextType, Product, User, CartItem, productsDummyData } from '../types';
+import { AppContextType, Product, User, CartItem, LegacyProduct, productsDummyData, getProductPrice } from '../types';
+import { getProducts } from '@/lib/actions/product.actions';
 
 interface AppContextProviderProps {
   children: ReactNode;
@@ -85,7 +86,20 @@ export function AppContextProvider({ children }: AppContextProviderProps) {
   }, [dbUser]);
 
   const fetchProductData = async () => {
-    setProducts(productsDummyData);
+    try {
+      // Try to fetch real products from database first
+      const result = await getProducts();
+      if (result.success && result.data) {
+        setProducts(result.data);
+      } else {
+        // Fallback to dummy data if database fetch fails
+        console.warn('Failed to fetch real products, using dummy data');
+        setProducts([]);
+      }
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      setProducts([]);
+    }
   };
 
   const addToCart = (itemId: string, size: string = 'default') => {
@@ -130,10 +144,10 @@ export function AppContextProvider({ children }: AppContextProviderProps) {
   const getCartAmount = () => {
     let totalAmount = 0;
     for (const itemId in cartItems) {
-      const itemInfo = products.find((product) => product._id === itemId);
+      const itemInfo = products.find((product) => product.id === itemId);
       if (itemInfo) {
         for (const size in cartItems[itemId]) {
-          totalAmount += itemInfo.price * cartItems[itemId][size];
+          totalAmount += getProductPrice(itemInfo) * cartItems[itemId][size];
         }
       }
     }

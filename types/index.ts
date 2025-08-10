@@ -28,7 +28,24 @@ export interface AppContextType {
   fetchProductData: () => Promise<void>;
 }
 
+// Product interface matching real database schema
 export interface Product {
+  id: string;           // Real DB uses 'id' not '_id'
+  title: string;        // Real DB uses 'title' not 'name'
+  description: string;
+  price: string;        // Real DB stores price as string
+  category: string;
+  image1: string | null; // Real DB has individual image fields
+  image2: string | null;
+  image3: string | null;
+  image4: string | null;
+  isFeatured: boolean;
+  isBanner: boolean;
+  createdAt: Date | null;
+}
+
+// Legacy product interface for backwards compatibility
+export interface LegacyProduct {
   _id: string;
   name: string;
   description: string;
@@ -51,8 +68,19 @@ export interface CartItem {
 
 
 
-// Dummy data for development
-export const productsDummyData: Product[] = [
+// Helper function to get product images as array
+export const getProductImages = (product: Product): string[] => {
+  return [product.image1, product.image2, product.image3, product.image4]
+    .filter(Boolean) as string[];
+};
+
+// Helper function to get product price as number
+export const getProductPrice = (product: Product): number => {
+  return parseFloat(product.price) || 0;
+};
+
+// Dummy data for development (legacy format for backwards compatibility)
+export const productsDummyData: LegacyProduct[] = [
   {
     _id: "1",
     name: "Kids Headphones",
