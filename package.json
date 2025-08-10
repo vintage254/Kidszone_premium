@@ -46,6 +46,7 @@
     "motion": "^12.19.3",
     "next": "15.1.2",
     "next-cloudinary": "^6.16.0",
+    "ogl": "^1.0.11",
     "react": "^19.0.0",
     "react-colorful": "^5.6.1",
     "react-dom": "^19.0.0",

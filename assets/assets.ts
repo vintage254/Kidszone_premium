@@ -11,9 +11,9 @@ export const assets = {
   boy_with_laptop_image: "/start/boy_with_laptop.png",
   
   // Header slider images
-  header_slide_1: "/start/header_slide_1.jpeg",
-  header_slide_2: "/start/header_slide_2.jpeg",
-  header_slide_3: "/start/header_slide_3.jpg",
+  header_slide_1: "/start/slide1.jpg",
+  header_slide_2: "/start/slide.jpg",
+  header_slide_3: "/start/slide3.jpg",
   
   // Product images
   product_placeholder: "/start/product_placeholder.png",
