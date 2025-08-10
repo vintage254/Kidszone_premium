@@ -11,11 +11,7 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "m.media-amazon.com",
       },
-      {
-        protocol: "https",
-        hostname: "ik.imagekit.io",
-        port: "",
-      },
+
       {
         protocol: "https",
         hostname: "res.cloudinary.com",
