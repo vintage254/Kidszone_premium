@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useAppContext } from "@/context/AppContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
-const CheckoutSuccess = () => {
+const CheckoutSuccessContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { clearCart } = useAppContext();
@@ -87,6 +87,14 @@ const CheckoutSuccess = () => {
       </main>
       <Footer />
     </>
+  );
+};
+
+const CheckoutSuccess = () => {
+  return (
+    <Suspense fallback={null}>
+      <CheckoutSuccessContent />
+    </Suspense>
   );
 };
 
