@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { UserButton, useUser, SignedIn, SignedOut, SignInButton, SignUpButton } from '@clerk/nextjs';
 import { useAppContext } from '@/context/AppContext';
 import { usePathname } from 'next/navigation';
+import { ShoppingBag } from 'lucide-react';
 
 interface AppContext {
   isSeller: boolean;
@@ -167,7 +168,11 @@ const Navbar = () => {
                 </div>
               </SignedOut>
               <SignedIn>
-                <UserButton afterSignOutUrl="/" />
+                <UserButton afterSignOutUrl="/">
+                  <UserButton.MenuItems>
+                    <UserButton.Link href="/orders" label="Order history" labelIcon={<ShoppingBag size={16} />} />
+                  </UserButton.MenuItems>
+                </UserButton>
               </SignedIn>
 
               {/* Cart icon with count */}
@@ -297,7 +302,11 @@ const Navbar = () => {
               <div className="px-4">
                 <SignedIn>
                   <div className="flex items-center justify-center py-2">
-                    <UserButton afterSignOutUrl="/" />
+                    <UserButton afterSignOutUrl="/">
+                      <UserButton.MenuItems>
+                        <UserButton.Link href="/orders" label="Order history" labelIcon={<ShoppingBag size={16} />} />
+                      </UserButton.MenuItems>
+                    </UserButton>
                   </div>
                 </SignedIn>
                 <SignedOut>

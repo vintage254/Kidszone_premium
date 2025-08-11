@@ -29,6 +29,7 @@ const CheckoutPage = () => {
       
       Object.entries(sizes).forEach(([size, quantity]) => {
         items.push({
+          productId: product.id,
           name: `${product.title} - Size ${size}`,
           price: getProductPrice(product),
           quantity,

@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { headers } from 'next/headers';
 import Stripe from 'stripe';
 import { stripe } from '@/lib/stripe';
 import { db } from '@/database/drizzle';
 import { orders } from '@/database/schema';
-import { eq } from 'drizzle-orm';
+import { inArray } from 'drizzle-orm';
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
@@ -21,64 +20,80 @@ export async function POST(req: NextRequest) {
     return new NextResponse(`Webhook Error: ${err.message}`, { status: 400 });
   }
 
+  // Helper to parse array of order IDs from metadata
+  const parseOrderIds = (meta?: Record<string, string | undefined> | null): string[] => {
+    const raw = meta?.orderIds ?? meta?.orderId;
+    if (!raw) return [];
+    try {
+      // If it's a JSON array string
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed.filter(Boolean);
+    } catch (_) {
+      // Fallback: treat as single ID string
+      return [raw];
+    }
+    // Fallback if parsed is not array
+    return [raw];
+  };
+
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session;
-    const orderId = session?.metadata?.orderId;
+    const orderIds = parseOrderIds(session?.metadata);
 
-    if (!orderId) {
-      console.error('Webhook Error: Missing orderId in session metadata');
-      return new NextResponse('Webhook Error: Missing orderId', { status: 400 });
+    if (!orderIds.length) {
+      console.error('Webhook Error: Missing orderIds in session metadata');
+      return new NextResponse('Webhook Error: Missing orderIds', { status: 400 });
     }
 
     try {
       await db
         .update(orders)
         .set({ status: 'PAID' })
-        .where(eq(orders.id, orderId));
+        .where(inArray(orders.id, orderIds));
       
-      console.log(`Order ${orderId} has been marked as PAID.`);
+      console.log(`Orders [${orderIds.join(', ')}] marked as PAID.`);
     } catch (dbError) {
-      console.error(`Database Error: Failed to update order ${orderId}`, dbError);
+      console.error(`Database Error: Failed to update orders [${orderIds.join(', ')}]`, dbError);
       return new NextResponse('Database Error', { status: 500 });
     }
   } else if (event.type === 'checkout.session.expired') {
     const session = event.data.object as Stripe.Checkout.Session;
-    const orderId = session?.metadata?.orderId;
+    const orderIds = parseOrderIds(session?.metadata);
 
-    if (!orderId) {
-      console.error('Webhook Error: Missing orderId in expired session metadata');
-      return new NextResponse('Webhook Error: Missing orderId', { status: 400 });
+    if (!orderIds.length) {
+      console.error('Webhook Error: Missing orderIds in expired session metadata');
+      return new NextResponse('Webhook Error: Missing orderIds', { status: 400 });
     }
 
     try {
       await db
         .update(orders)
         .set({ status: 'FAILED' })
-        .where(eq(orders.id, orderId));
+        .where(inArray(orders.id, orderIds));
       
-      console.log(`Order ${orderId} has been marked as FAILED (session expired).`);
+      console.log(`Orders [${orderIds.join(', ')}] marked as FAILED (session expired).`);
     } catch (dbError) {
-      console.error(`Database Error: Failed to update order ${orderId}`, dbError);
+      console.error(`Database Error: Failed to update orders [${orderIds.join(', ')}]`, dbError);
       return new NextResponse('Database Error', { status: 500 });
     }
   } else if (event.type === 'payment_intent.payment_failed') {
     const paymentIntent = event.data.object as Stripe.PaymentIntent;
-    const orderId = paymentIntent?.metadata?.orderId;
+    const orderIds = parseOrderIds(paymentIntent?.metadata as any);
 
-    if (!orderId) {
-      console.error('Webhook Error: Missing orderId in payment intent metadata');
-      return new NextResponse('Webhook Error: Missing orderId', { status: 400 });
+    if (!orderIds.length) {
+      console.warn('Payment failed event without orderIds metadata. Ignoring.');
+      return new NextResponse(null, { status: 200 });
     }
 
     try {
       await db
         .update(orders)
         .set({ status: 'FAILED' })
-        .where(eq(orders.id, orderId));
+        .where(inArray(orders.id, orderIds));
       
-      console.log(`Order ${orderId} has been marked as FAILED (payment failed).`);
+      console.log(`Orders [${orderIds.join(', ')}] marked as FAILED (payment failed).`);
     } catch (dbError) {
-      console.error(`Database Error: Failed to update order ${orderId}`, dbError);
+      console.error(`Database Error: Failed to update orders [${orderIds.join(', ')}]`, dbError);
       return new NextResponse('Database Error', { status: 500 });
     }
   }
