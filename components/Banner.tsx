@@ -7,6 +7,7 @@ import { CardStack } from "./ui/card-stack";
 import { InteractiveHoverButton } from "./ui/interactivebutton";
 import TiltedCard from "./ui/tiltedcards";
 import { BackgroundLines } from "./ui/background-lines";
+import MagicLoader from "@/components/ui/magicloader";
 
 export const Banner = () => {
   const [bannerProduct, setBannerProduct] = useState<any>(null);
@@ -36,7 +37,7 @@ export const Banner = () => {
     return (
       <div className="my-16 bg-secondary rounded-xl overflow-hidden p-8 md:p-4">
         <div className="flex items-center justify-center h-64">
-          <p className="text-gray-500">Loading banner...</p>
+          <MagicLoader text="Loading..." />
         </div>
       </div>
     );

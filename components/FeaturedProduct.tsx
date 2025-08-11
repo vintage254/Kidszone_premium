@@ -4,6 +4,7 @@ import { getFeaturedProducts } from '@/lib/actions/product.actions';
 import Link from 'next/link';
 import TiltedCard from '@/components/ui/tiltedcards';
 import { InteractiveHoverButton } from '@/components/ui/interactivebutton';
+import MagicLoader from '@/components/ui/magicloader';
 
 // Function to truncate description with read more link
 const truncateDescription = (text: string, maxLength: number = 100): string => {
@@ -43,7 +44,7 @@ const FeaturedProduct = () => {
           <div className="w-28 h-0.5 bg-orange-600 mt-2"></div>
         </div>
         <div className="flex items-center justify-center h-64">
-          <p className="text-gray-500">Loading featured products...</p>
+          <MagicLoader text="Loading featured products..." />
         </div>
       </div>
     );

@@ -2,6 +2,7 @@
 import { Camera, Mesh, Plane, Program, Renderer, Texture, Transform } from "ogl";
 import { useEffect, useRef, useState } from "react";
 import { getProducts } from "@/lib/actions/product.actions";
+import MagicLoader from "@/components/ui/magicloader";
 
 type GL = Renderer["gl"];
 
@@ -717,7 +718,7 @@ export default function HomeProductMenu() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <h2 className="text-3xl font-bold tracking-tight text-gray-900 mb-8">Popular Products</h2>
         <div className="h-96 flex items-center justify-center">
-          <p className="text-center text-gray-500">Loading products...</p>
+          <MagicLoader text="Loading products..." />
         </div>
       </section>
     );

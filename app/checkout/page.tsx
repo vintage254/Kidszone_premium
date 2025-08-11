@@ -152,7 +152,7 @@ const CheckoutPage = () => {
                 onClick={handleStripeCheckout}
                 disabled={loading}
               >
-                {loading ? "Loading..." : "Pay with Credit Card"}
+                {loading ? "Processing..." : "Pay with Credit Card"}
               </Button>
             </div>
           )}

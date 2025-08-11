@@ -6,6 +6,7 @@ import TiltedCard from '@/components/ui/tiltedcards';
 import { ShimmerButton } from '@/components/ui/shimmerbutton';
 import Link from 'next/link';
 import { getProducts } from '@/lib/actions/product.actions';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const ProductsPage = () => {
   const [products, setProducts] = useState<any[]>([]);
@@ -348,8 +349,17 @@ const ProductsPage = () => {
           </div>
 
           {loading && (
-            <div className="flex items-center justify-center h-64">
-              <p className="text-gray-500 text-lg">Loading products...</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="bg-gradient-to-br from-white/50 via-white/40 to-white/30 backdrop-blur-sm rounded-xl overflow-hidden border border-white/20 p-4">
+                  <Skeleton className="h-64 w-full rounded-lg" />
+                  <div className="mt-4 space-y-2">
+                    <Skeleton className="h-5 w-3/4" />
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-2/3" />
+                  </div>
+                </div>
+              ))}
             </div>
           )}
 
