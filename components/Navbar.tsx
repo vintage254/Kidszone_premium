@@ -80,7 +80,7 @@ const Navbar = () => {
           >
             <div className="relative overflow-hidden rounded-xl">
               <Image 
-                className="w-12 transition-transform duration-300 group-hover:scale-110" 
+                className="w-12 h-auto transition-transform duration-300 group-hover:scale-110" 
                 src="/images/Kidz-logo.png" 
                 alt="KidsZone Logo" 
                 width={48} 
@@ -138,7 +138,7 @@ const Navbar = () => {
             {/* Search Icon */}
             <button className="p-2 rounded-full hover:bg-gray-100 transition-all duration-300 hover:scale-110">
               <Image 
-                className="w-6" 
+                className="w-6 h-auto" 
                 src={assets.search_icon} 
                 alt="Search" 
                 width={24} 
@@ -181,7 +181,7 @@ const Navbar = () => {
                 className="relative p-2 rounded-full hover:bg-gray-100 transition-all duration-300 hover:scale-110 group"
               >
                 <Image 
-                  className="w-6 transition-transform duration-300 group-hover:scale-110" 
+                  className="w-6 h-auto transition-transform duration-300 group-hover:scale-110" 
                   src={assets.cart_icon} 
                   alt="Cart" 
                   width={24} 
@@ -274,7 +274,7 @@ const Navbar = () => {
                   className="relative p-2 rounded-full hover:bg-gray-100 transition-all duration-300 group flex items-center gap-2"
                 >
                   <Image 
-                    className="w-6" 
+                    className="w-6 h-auto" 
                     src={assets.cart_icon} 
                     alt="Cart" 
                     width={24} 

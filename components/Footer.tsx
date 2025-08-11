@@ -233,7 +233,7 @@ const Footer = () => {
           alt="" 
           width={250} 
           height={160} 
-          className="opacity-30 rounded-tr-3xl" 
+          className="opacity-30 rounded-tr-3xl h-auto" 
         />
       </div>
     </footer>
