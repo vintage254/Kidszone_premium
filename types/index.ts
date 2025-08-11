@@ -25,6 +25,7 @@ export interface AppContextType {
   updateQuantity: (itemId: string, size: string, quantity: number) => void;
   getCartCount: () => number;
   getCartAmount: () => number;
+  clearCart: () => void;
   fetchProductData: () => Promise<void>;
 }
 

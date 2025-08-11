@@ -21,9 +21,8 @@ export async function POST(req: NextRequest) {
     return new NextResponse(`Webhook Error: ${err.message}`, { status: 400 });
   }
 
-  const session = event.data.object as Stripe.Checkout.Session;
-
   if (event.type === 'checkout.session.completed') {
+    const session = event.data.object as Stripe.Checkout.Session;
     const orderId = session?.metadata?.orderId;
 
     if (!orderId) {
@@ -38,6 +37,46 @@ export async function POST(req: NextRequest) {
         .where(eq(orders.id, orderId));
       
       console.log(`Order ${orderId} has been marked as PAID.`);
+    } catch (dbError) {
+      console.error(`Database Error: Failed to update order ${orderId}`, dbError);
+      return new NextResponse('Database Error', { status: 500 });
+    }
+  } else if (event.type === 'checkout.session.expired') {
+    const session = event.data.object as Stripe.Checkout.Session;
+    const orderId = session?.metadata?.orderId;
+
+    if (!orderId) {
+      console.error('Webhook Error: Missing orderId in expired session metadata');
+      return new NextResponse('Webhook Error: Missing orderId', { status: 400 });
+    }
+
+    try {
+      await db
+        .update(orders)
+        .set({ status: 'FAILED' })
+        .where(eq(orders.id, orderId));
+      
+      console.log(`Order ${orderId} has been marked as FAILED (session expired).`);
+    } catch (dbError) {
+      console.error(`Database Error: Failed to update order ${orderId}`, dbError);
+      return new NextResponse('Database Error', { status: 500 });
+    }
+  } else if (event.type === 'payment_intent.payment_failed') {
+    const paymentIntent = event.data.object as Stripe.PaymentIntent;
+    const orderId = paymentIntent?.metadata?.orderId;
+
+    if (!orderId) {
+      console.error('Webhook Error: Missing orderId in payment intent metadata');
+      return new NextResponse('Webhook Error: Missing orderId', { status: 400 });
+    }
+
+    try {
+      await db
+        .update(orders)
+        .set({ status: 'FAILED' })
+        .where(eq(orders.id, orderId));
+      
+      console.log(`Order ${orderId} has been marked as FAILED (payment failed).`);
     } catch (dbError) {
       console.error(`Database Error: Failed to update order ${orderId}`, dbError);
       return new NextResponse('Database Error', { status: 500 });

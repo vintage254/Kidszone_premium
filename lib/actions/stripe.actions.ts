@@ -2,16 +2,23 @@
 
 import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
+import { getUserByClerkId } from "@/lib/services/user.service";
 import { db } from "@/database/drizzle";
 import { orders, products } from "@/database/schema";
 import { stripe } from "@/lib/stripe";
 import { eq } from "drizzle-orm";
 
 export async function createCheckoutSession(productId: string) {
-  const { userId } = await auth();
+  const { userId: clerkUserId } = await auth();
 
-  if (!userId) {
+  if (!clerkUserId) {
     return { success: false, message: "User not authenticated." };
+  }
+
+  // Find corresponding database user (UUID)
+  const dbUser = await getUserByClerkId(clerkUserId);
+  if (!dbUser) {
+    return { success: false, message: "Database user not found for the authenticated account." };
   }
 
   const product = await db.query.products.findFirst({
@@ -25,7 +32,7 @@ export async function createCheckoutSession(productId: string) {
   let newOrder;
   try {
     [newOrder] = await db.insert(orders).values({
-      userId,
+      userId: dbUser.id,
       productId,
       status: 'PENDING',
     }).returning();

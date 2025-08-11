@@ -80,8 +80,9 @@ export async function getOrdersByUserId() {
         price: products.price,
       })
       .from(orders)
-      .where(eq(orders.userId, userId))
+      .leftJoin(users, eq(orders.userId, users.id))
       .leftJoin(products, eq(orders.productId, products.id))
+      .where(eq(users.clerkUserId, userId))
       .orderBy(desc(orders.createdAt));
 
     return { success: true, data };

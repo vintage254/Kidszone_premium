@@ -21,6 +21,9 @@ interface DatabaseUser {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
+// Key used for persisting cart items locally
+const CART_STORAGE_KEY = 'kidszone_cart_v1';
+
 export function AppContextProvider({ children }: AppContextProviderProps) {
   const currency = process.env.NEXT_PUBLIC_CURRENCY || '$';
   const router = useRouter();
@@ -30,6 +33,23 @@ export function AppContextProvider({ children }: AppContextProviderProps) {
   const [cartItems, setCartItems] = useState<CartItem>({});
   const [dbUser, setDbUser] = useState<DatabaseUser | null>(null);
   const [isLoadingUser, setIsLoadingUser] = useState(true);
+
+  // Hydrate cart from localStorage on first mount
+  useEffect(() => {
+    try {
+      if (typeof window !== 'undefined') {
+        const raw = localStorage.getItem(CART_STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && typeof parsed === 'object') {
+            setCartItems(parsed);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error hydrating cart from storage:', error);
+    }
+  }, []);
 
   // Fetch user data from database when Clerk user is loaded
   useEffect(() => {
@@ -131,6 +151,18 @@ export function AppContextProvider({ children }: AppContextProviderProps) {
     });
   };
 
+  // Explicitly clear cart and storage
+  const clearCart = () => {
+    setCartItems({});
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem(CART_STORAGE_KEY);
+      }
+    } catch (error) {
+      console.error('Error clearing cart from storage:', error);
+    }
+  };
+
   const getCartCount = () => {
     let totalCount = 0;
     for (const itemId in cartItems) {
@@ -158,12 +190,16 @@ export function AppContextProvider({ children }: AppContextProviderProps) {
     fetchProductData();
   }, []);
 
-  // Clear cart when user signs out
+  // Persist cart to localStorage whenever it changes
   useEffect(() => {
-    if (isLoaded && !user) {
-      setCartItems({});
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cartItems));
+      }
+    } catch (error) {
+      console.error('Error persisting cart to storage:', error);
     }
-  }, [isLoaded, user]);
+  }, [cartItems]);
 
   const contextValue: AppContextType = {
     products,
@@ -176,6 +212,7 @@ export function AppContextProvider({ children }: AppContextProviderProps) {
     updateQuantity,
     getCartCount,
     getCartAmount,
+    clearCart,
     fetchProductData,
   };
 

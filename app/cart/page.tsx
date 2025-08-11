@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 const CartPage = () => {
   const { cartItems, products, updateQuantity, getCartAmount, currency } = useAppContext();
@@ -40,7 +42,9 @@ const CartPage = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <>
+      <Navbar />
+      <main className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8">Your Cart</h1>
       
       {cartData.length === 0 ? (
@@ -135,7 +139,9 @@ const CartPage = () => {
           </div>
         </div>
       )}
-    </div>
+      </main>
+      <Footer />
+    </>
   );
 };
 

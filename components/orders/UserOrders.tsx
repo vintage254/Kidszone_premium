@@ -2,17 +2,7 @@
 
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
-
-// This type should ideally be inferred from the return type of getOrdersByUserId
-type UserOrder = {
-  orderId: string;
-  productTitle: string | null;
-  productImage: string | null;
-  status: "PENDING" | "PAID" | "SHIPPED" | "DELIVERED";
-  trackingNumber: string | null;
-  createdAt: string | null;
-  price: string | null;
-};
+import { UserOrder } from '@/lib/types';
 
 interface UserOrdersProps {
   orders: UserOrder[];

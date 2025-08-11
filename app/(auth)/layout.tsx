@@ -9,25 +9,32 @@ const Layout = async ({ children }: { children: ReactNode }) => {
   if (userId) redirect("/");
 
   return (
-    <main className="auth-container">
-      <section className="auth-form">
-        <div className="auth-box">
-          <div className="flex flex-row gap-1">
-            <Image src="/icons/logo.png" alt="logo" width={140} height={140} />
+    <main className="min-h-screen grid lg:grid-cols-2 bg-light-800">
+      {/* Left: Auth form card */}
+      <section className="flex items-center justify-center px-6 py-10 lg:px-12">
+        <div className="w-full max-w-md rounded-xl border border-border bg-card shadow-lg p-6 sm:p-8">
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <Image src="/images/kidz-logo.png" alt="Kidszone logo" width={140} height={140} priority />
           </div>
-
-          <div>{children}</div>
+          <div className="space-y-6">{children}</div>
         </div>
       </section>
 
-      <section className="auth-illustration">
+      {/* Right: Illustration with brand overlay */}
+      <section className="relative hidden lg:block">
         <Image
-          src="/images/auth-illustration.png"
+          src="/images/clerk.jpg"
           alt="auth illustration"
-          height={1000}
-          width={1000}
-          className="size-full object-cover"
+          fill
+          sizes="(min-width: 1024px) 50vw, 100vw"
+          className="object-cover"
+          priority
         />
+        <div className="absolute inset-0 bg-gradient-to-tr from-gold/30 to-black/30 mix-blend-multiply" />
+        <div className="absolute bottom-8 left-8 text-white drop-shadow">
+          <h2 className="font-bebas-neue text-4xl tracking-wider">Welcome to Kidszone</h2>
+          <p className="text-sm opacity-90">Sign in to finalize your purchase</p>
+        </div>
       </section>
     </main>
   );

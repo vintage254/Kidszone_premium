@@ -1,6 +1,7 @@
 "use server";
 
 import { auth } from "@clerk/nextjs/server";
+import { getUserByClerkId } from "@/lib/services/user.service";
 import { db } from "@/database/drizzle";
 import { orders, products } from "@/database/schema";
 import { eq } from "drizzle-orm";
@@ -41,10 +42,16 @@ const generateAccessToken = async () => {
  * @see https://developer.paypal.com/docs/api/orders/v2/#orders_create
  */
 export const createPaypalOrder = async (productId: string) => {
-  const { userId } = await auth();
+  const { userId: clerkUserId } = await auth();
 
-  if (!userId) {
+  if (!clerkUserId) {
     return { success: false, message: "User not authenticated." };
+  }
+
+  // Find corresponding database user (UUID)
+  const dbUser = await getUserByClerkId(clerkUserId);
+  if (!dbUser) {
+    return { success: false, message: "Database user not found for the authenticated account." };
   }
 
   const product = await db.query.products.findFirst({
@@ -58,7 +65,7 @@ export const createPaypalOrder = async (productId: string) => {
   let newOrder;
   try {
     [newOrder] = await db.insert(orders).values({
-      userId,
+      userId: dbUser.id,
       productId,
       status: 'PENDING',
     }).returning();

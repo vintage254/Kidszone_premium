@@ -6,55 +6,70 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
-import { getProductPrice } from "@/types";
+import { getProductPrice, getProductImages } from "@/types";
 import { PayPalButtonsWrapper } from "@/components/products/PayPalButtonsWrapper";
-import { loadStripe } from "@stripe/stripe-js";
-import { Elements } from "@stripe/react-stripe-js";
 import Navbar from "@/components/Navbar";
-
-// Initialize Stripe
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+import Footer from "@/components/Footer";
 
 const CheckoutPage = () => {
-  <Navbar/>
   const { cartItems, products, getCartAmount, currency } = useAppContext();
   const router = useRouter();
   const [paymentMethod, setPaymentMethod] = useState<"stripe" | "paypal">("stripe");
-  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   // Check if cart is empty
   const isCartEmpty = Object.keys(cartItems).length === 0;
 
-  // Create payment intent for Stripe
-  const createPaymentIntent = async () => {
+  // Create cart items for Stripe
+  const createCartItems = () => {
+    const items: any[] = [];
+    Object.entries(cartItems).forEach(([itemId, sizes]) => {
+      const product = products.find(p => p.id === itemId);
+      if (!product) return;
+      
+      Object.entries(sizes).forEach(([size, quantity]) => {
+        items.push({
+          name: `${product.title} - Size ${size}`,
+          price: getProductPrice(product),
+          quantity,
+          image: getProductImages(product)[0]
+        });
+      });
+    });
+    return items;
+  };
+
+  // Handle Stripe checkout
+  const handleStripeCheckout = async () => {
+    setLoading(true);
     try {
-      const response = await fetch("/api/stripe/create-payment-intent", {
+      const response = await fetch("/api/stripe/create-checkout-session", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           amount: getCartAmount(),
+          cartItems: createCartItems(),
         }),
       });
       
       if (!response.ok) {
-        throw new Error("Failed to create payment intent");
+        throw new Error("Failed to create checkout session");
       }
       
-      const { clientSecret } = await response.json();
-      setClientSecret(clientSecret);
+      const { url } = await response.json();
+      
+      // Redirect to Stripe Checkout
+      if (url) {
+        window.location.href = url;
+      }
     } catch (error) {
-      console.error("Error creating payment intent:", error);
+      console.error("Error creating checkout session:", error);
+      alert("Failed to start checkout. Please try again.");
+    } finally {
+      setLoading(false);
     }
-  };
-
-  // Handle Stripe checkout
-  const handleStripeCheckout = async () => {
-    if (!clientSecret) {
-      await createPaymentIntent();
-    }
-    // The actual Stripe checkout will be handled by the Elements provider
   };
 
   if (isCartEmpty) {
@@ -70,7 +85,9 @@ const CheckoutPage = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <>
+      <Navbar />
+      <main className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8">Checkout</h1>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -124,20 +141,19 @@ const CheckoutPage = () => {
           </div>
           
           {paymentMethod === "stripe" && (
-            <Elements stripe={stripePromise}>
-              <div className="border rounded-lg p-4">
-                <h3 className="font-bold mb-2">Stripe Payment</h3>
-                <p className="text-sm text-gray-600 mb-4">
-                  You will be redirected to Stripe to complete your payment securely.
-                </p>
-                <Button 
-                  className="w-full bg-orange-600 hover:bg-orange-700"
-                  onClick={handleStripeCheckout}
-                >
-                  Pay with Stripe
-                </Button>
-              </div>
-            </Elements>
+            <div className="border rounded-lg p-4">
+              <h3 className="font-bold mb-2">Credit Card Payment</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                You will be redirected to Stripe's secure checkout page to complete your payment.
+              </p>
+              <Button 
+                className="w-full bg-orange-600 hover:bg-orange-700 disabled:opacity-50"
+                onClick={handleStripeCheckout}
+                disabled={loading}
+              >
+                {loading ? "Loading..." : "Pay with Credit Card"}
+              </Button>
+            </div>
           )}
           
           {paymentMethod === "paypal" && (
@@ -168,7 +184,9 @@ const CheckoutPage = () => {
           </Button>
         </div>
       </div>
-    </div>
+      </main>
+      <Footer />
+    </>
   );
 };
 

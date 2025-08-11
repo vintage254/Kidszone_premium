@@ -22,6 +22,7 @@ export const ORDER_STATUS_ENUM = pgEnum("order_status", [
   "PAID",
   "SHIPPED",
   "DELIVERED",
+  "FAILED",
 ]);
 
 
