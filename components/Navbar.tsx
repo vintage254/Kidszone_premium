@@ -8,6 +8,7 @@ import { UserButton, useUser, SignedIn, SignedOut, SignInButton, SignUpButton } 
 import { useAppContext } from '@/context/AppContext';
 import { usePathname } from 'next/navigation';
 import { ShoppingBag } from 'lucide-react';
+import { ShimmerButton } from '@/components/ui/shimmerbutton';
 
 interface AppContext {
   isSeller: boolean;
@@ -152,18 +153,22 @@ const Navbar = () => {
               <SignedOut>
                 <div className="flex items-center gap-2">
                   <SignInButton mode="modal">
-                    <button 
-                      className="px-6 py-2 rounded-full bg-gray-100 text-gray-800 hover:bg-gray-200 transition-all duration-300 hover:scale-105 font-medium"
+                    <ShimmerButton 
+                      className="px-6 py-2 text-sm font-medium"
+                      background="rgba(243, 244, 246, 1)"
+                      shimmerColor="#ffffff"
                     >
-                      Sign In
-                    </button>
+                      <span className="text-gray-800">Sign In</span>
+                    </ShimmerButton>
                   </SignInButton>
                   <SignUpButton mode="modal">
-                    <button 
-                      className="px-6 py-2 rounded-full bg-orange-600 text-white hover:bg-orange-700 transition-all duration-300 hover:scale-105 hover:shadow-lg font-medium"
+                    <ShimmerButton 
+                      className="px-6 py-2 text-sm font-medium"
+                      background="rgba(234, 88, 12, 1)"
+                      shimmerColor="#ffffff"
                     >
                       Sign Up
-                    </button>
+                    </ShimmerButton>
                   </SignUpButton>
                 </div>
               </SignedOut>
@@ -178,7 +183,7 @@ const Navbar = () => {
               {/* Cart icon with count */}
               <button 
                 onClick={() => router.push('/cart')} 
-                className="relative p-2 rounded-full hover:bg-gray-100 transition-all duration-300 hover:scale-110 group"
+                className="relative p-2 rounded-full hover:bg-gray-100 transition-all duration-300 group"
               >
                 <Image 
                   className="w-6 h-auto transition-transform duration-300 group-hover:scale-110" 
@@ -312,14 +317,22 @@ const Navbar = () => {
                 <SignedOut>
                   <div className="flex flex-col gap-3 pt-2">
                     <SignInButton mode="modal">
-                      <button className="w-full px-6 py-3 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 transition-all duration-300 font-medium">
-                        Sign In
-                      </button>
+                      <ShimmerButton 
+                        className="w-full px-6 py-3 text-sm font-medium"
+                        background="rgba(243, 244, 246, 1)"
+                        shimmerColor="#ffffff"
+                      >
+                        <span className="text-gray-800">Sign In</span>
+                      </ShimmerButton>
                     </SignInButton>
                     <SignUpButton mode="modal">
-                      <button className="w-full px-6 py-3 rounded-lg bg-orange-600 text-white hover:bg-orange-700 transition-all duration-300 font-medium">
+                      <ShimmerButton 
+                        className="w-full px-6 py-3 text-sm font-medium"
+                        background="rgba(234, 88, 12, 1)"
+                        shimmerColor="#ffffff"
+                      >
                         Sign Up
-                      </button>
+                      </ShimmerButton>
                     </SignUpButton>
                   </div>
                 </SignedOut>

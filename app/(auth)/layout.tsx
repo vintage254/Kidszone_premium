@@ -9,10 +9,22 @@ const Layout = async ({ children }: { children: ReactNode }) => {
   if (userId) redirect("/");
 
   return (
-    <main className="min-h-screen grid lg:grid-cols-2 bg-light-800">
+    <main className="relative min-h-screen grid lg:grid-cols-2 bg-light-800 overflow-hidden">
+      {/* Background image for mobile */}
+      <div className="absolute inset-0 lg:hidden">
+        <Image
+          src="/images/clerk.jpg"
+          alt="auth background"
+          fill
+          sizes="100vw"
+          className="object-cover"
+          priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-tr from-gold/30 to-black/30 mix-blend-multiply" />
+      </div>
       {/* Left: Auth form card */}
-      <section className="flex items-center justify-center px-6 py-10 lg:px-12">
-        <div className="w-full max-w-md rounded-xl border border-border bg-card shadow-lg p-6 sm:p-8">
+      <section className="relative z-10 flex items-center justify-center px-6 py-10 lg:px-12">
+        <div className="w-full max-w-md rounded-xl border border-white/20 bg-card/30 backdrop-blur-md bg-clip-padding shadow-2xl p-6 sm:p-8">
           <div className="flex items-center justify-center gap-3 mb-6">
             <Image src="/images/kidz-logo.png" alt="Kidszone logo" width={140} height={140} priority />
           </div>
