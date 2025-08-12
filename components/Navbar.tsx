@@ -29,7 +29,7 @@ const Navbar = () => {
     if (pathname === '/') return 'home';
     if (pathname.startsWith('/products')) return 'products';
     if (pathname.startsWith('/about')) return 'about';
-    if (pathname.startsWith('/contact')) return 'contact';
+    if (pathname.startsWith('/#contact')) return 'contact';
     return 'home';
   };
   
