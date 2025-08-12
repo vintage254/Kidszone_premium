@@ -5,6 +5,8 @@ import { Banner } from "@/components/Banner";
 import FeaturedProduct from "@/components/FeaturedProduct";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import ChatBox from "@/components/Chatbox";
+import WhatsApp from "@/components/WhatsApp";
 import Link from "next/link";
 import { InteractiveHoverButton } from "@/components/ui/interactivebutton";
 
@@ -56,7 +58,8 @@ const Home = () => {
           </div>
         </div>
       </section>
-      
+      <ChatBox />
+      <WhatsApp />
       <Footer />
     </>
   );

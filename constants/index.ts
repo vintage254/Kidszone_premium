@@ -7,6 +7,7 @@ import {
   Users,
   BarChart3,
   Settings,
+  MessageSquareText,
 } from "lucide-react";
 
 export const adminSideBarLinks = [
@@ -24,6 +25,11 @@ export const adminSideBarLinks = [
     icon: ShoppingCart,
     route: "/admin/orders",
     text: "Orders",
+  },
+  {
+    icon: MessageSquareText,
+    route: "/admin/chatbox",
+    text: "Chatbox",
   },
   {
     icon: Users,

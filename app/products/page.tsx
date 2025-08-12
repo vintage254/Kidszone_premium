@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import ChatBox from '@/components/Chatbox';
 import TiltedCard from '@/components/ui/tiltedcards';
 import { ShimmerButton } from '@/components/ui/shimmerbutton';
 import Link from 'next/link';
@@ -469,6 +470,7 @@ const ProductsPage = () => {
         </div>
       </section>
 
+      <ChatBox />
       <Footer />
     </div>
   );

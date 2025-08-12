@@ -25,6 +25,12 @@ export const ORDER_STATUS_ENUM = pgEnum("order_status", [
   "FAILED",
 ]);
 
+// Message sender enum for chat system
+export const MESSAGE_SENDER_ENUM = pgEnum("message_sender", [
+  "USER",
+  "ADMIN",
+]);
+
 
 export const users = pgTable("users", {
   id: uuid("id").notNull().primaryKey().defaultRandom(),
@@ -71,6 +77,22 @@ export const orders = pgTable("orders", {
   }).defaultNow(),
 });
 
+// Chat messages between a buyer (user) and admins/sellers
+export const chatMessages = pgTable("chat_messages", {
+  id: uuid("id").notNull().primaryKey().defaultRandom(),
+  // Buyer the thread belongs to (one thread per user)
+  userId: uuid("user_id").notNull().references(() => users.id),
+  // Who sent the message
+  sender: MESSAGE_SENDER_ENUM("sender").notNull(),
+  // Message body
+  content: text("content").notNull(),
+  // Simple read flags (optional usage)
+  readByAdmin: pgBoolean("read_by_admin").notNull().default(false),
+  readByUser: pgBoolean("read_by_user").notNull().default(false),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+});
+
 export type User = InferSelectModel<typeof users>;
 export type Product = InferSelectModel<typeof products>;
 export type Order = InferSelectModel<typeof orders>;
+export type ChatMessage = InferSelectModel<typeof chatMessages>;
