@@ -43,6 +43,27 @@
       "when": 1754902594927,
       "tag": "0005_eminent_yellowjacket",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1755777234521,
+      "tag": "0006_brief_blue_shield",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1755802517012,
+      "tag": "0007_eminent_lyja",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1755837979695,
+      "tag": "0008_sour_the_executioner",
+      "breakpoints": true
     }
   ]
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { X } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { createProduct, updateProduct } from "@/lib/actions/product.actions";
@@ -48,14 +49,15 @@ const ProductForm = ({ product }: ProductFormProps) => {
       images: defaultImages,
       isFeatured: product?.isFeatured || false,
       isBanner: product?.isBanner || false,
+      filters: product?.filters as any[] || [],
     },
   });
 
   // Watch the images field for debugging
-  const watchedImages = form.watch("images");
-  useEffect(() => {
-    console.log("👀 Watched images changed:", watchedImages);
-  }, [watchedImages]);
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "filters",
+  });
 
   const onSubmit = (values: ProductFormValues) => {
     startTransition(async () => {
@@ -192,6 +194,50 @@ const ProductForm = ({ product }: ProductFormProps) => {
               </FormItem>
             )}
           />
+        </div>
+
+        <div>
+          <h3 className="text-lg font-medium">Filters</h3>
+          {fields.map((field, index) => (
+            <div key={field.id} className="flex items-center space-x-2 p-2 border rounded-md">
+              <FormField
+                control={form.control}
+                name={`filters.${index}.name`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input placeholder="Filter Name (e.g., Size)" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name={`filters.${index}.options`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input placeholder="Options (comma-separated)" {...field} value={Array.isArray(field.value) ? field.value.join(',') : ''} onChange={(e) => field.onChange(e.target.value.split(','))} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type="button" variant="destructive" size="icon" onClick={() => remove(index)}>
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="mt-2"
+            onClick={() => append({ name: "", options: [] })}
+          >
+            Add Filter
+          </Button>
         </div>
         <Button type="submit" disabled={isPending}>
           {isPending ? (product ? 'Updating...' : 'Saving...') : (product ? 'Update Product' : 'Save Product')}

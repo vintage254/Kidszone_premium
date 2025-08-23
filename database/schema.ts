@@ -12,13 +12,13 @@ import {
   boolean as pgBoolean,
   foreignKey,
   numeric,
+  jsonb,
 } from "drizzle-orm/pg-core";
 
 
 export const ROLE_ENUM = pgEnum("role", ["ADMIN", "USER", "SELLER"]);
 
 export const ORDER_STATUS_ENUM = pgEnum("order_status", [
-  "PENDING",
   "PAID",
   "SHIPPED",
   "DELIVERED",
@@ -61,6 +61,7 @@ export const products = pgTable("products", {
   image4: text("image4"),
   isFeatured: pgBoolean("is_featured").default(false).notNull(),
   isBanner: pgBoolean("is_banner").default(false).notNull(),
+  filters: jsonb("filters"),
   createdAt: timestamp("created_at", {
     withTimezone: true,
   }).defaultNow(),
@@ -69,9 +70,29 @@ export const products = pgTable("products", {
 export const orders = pgTable("orders", {
   id: uuid("id").notNull().primaryKey().defaultRandom(),
   userId: uuid("user_id").notNull().references(() => users.id),
-  productId: uuid("product_id").notNull().references(() => products.id),
-  status: ORDER_STATUS_ENUM("status").default("PENDING"),
+  total: numeric("total").notNull(),
+  stripePaymentIntentId: text("stripe_payment_intent_id").unique(),
+  status: ORDER_STATUS_ENUM("status").default("PAID"),
   trackingNumber: text("tracking_number"),
+  createdAt: timestamp("created_at", {
+    withTimezone: true,
+  }).defaultNow(),
+});
+
+export const orderItems = pgTable("order_items", {
+  id: uuid("id").notNull().primaryKey().defaultRandom(),
+  orderId: uuid("order_id").notNull().references(() => orders.id),
+  productId: uuid("product_id").notNull().references(() => products.id),
+  quantity: integer("quantity").notNull(),
+  price: numeric("price").notNull(), // Price at time of purchase
+});
+
+export const cart = pgTable("cart", {
+  id: uuid("id").notNull().primaryKey().defaultRandom(),
+  userId: uuid("user_id").notNull().references(() => users.id),
+  productId: uuid("product_id").notNull().references(() => products.id),
+  quantity: integer("quantity").notNull(),
+  filters: jsonb("filters"), // Store selected filters as JSON
   createdAt: timestamp("created_at", {
     withTimezone: true,
   }).defaultNow(),

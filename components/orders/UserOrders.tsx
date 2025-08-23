@@ -16,7 +16,9 @@ const getStatusVariant = (status: UserOrder['status']) => {
       return 'secondary';
     case 'DELIVERED':
       return 'outline';
-    case 'PENDING':
+    case 'FAILED':
+      return 'destructive';
+    case 'FAILED':
     default:
       return 'destructive';
   }
@@ -35,25 +37,47 @@ export const UserOrders = ({ orders }: UserOrdersProps) => {
   return (
     <div className="space-y-6">
       {orders.map((order) => (
-        <div key={order.orderId} className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col md:flex-row">
-          <div className="relative h-48 w-full md:h-auto md:w-48 flex-shrink-0">
-            <Image 
-              src={order.productImage || '/images/placeholder.png'} 
-              alt={order.productTitle || 'Product Image'}
-              fill
-              className="object-cover"
-            />
-          </div>
-          <div className="p-6 flex-grow">
-            <div className="flex justify-between items-start">
-              <h3 className="text-xl font-semibold mb-2">{order.productTitle}</h3>
+        <div key={order.orderId} className="bg-white rounded-lg shadow-md overflow-hidden">
+          <div className="p-6">
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                <h3 className="text-xl font-semibold">Order #{order.orderId.slice(-8)}</h3>
+                <p className="text-sm text-muted-foreground">
+                  Ordered on {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A'}
+                </p>
+              </div>
               <Badge variant={getStatusVariant(order.status)}>{order.status}</Badge>
             </div>
-            <p className="text-lg font-bold text-primary mb-4">${order.price}</p>
-            <div className="text-sm text-muted-foreground space-y-1">
-              <p><strong>Order ID:</strong> {order.orderId}</p>
-              <p><strong>Ordered On:</strong> {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A'}</p>
-              <p><strong>Tracking:</strong> {order.trackingNumber || 'Not available yet'}</p>
+            
+            {/* Order Items */}
+            <div className="space-y-4 mb-4">
+              {order.items.map((item, index) => (
+                <div key={index} className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
+                  <div className="relative h-16 w-16 flex-shrink-0">
+                    <Image 
+                      src={item.productImage || '/images/placeholder.png'} 
+                      alt={item.productTitle}
+                      fill
+                      className="object-cover rounded-md"
+                    />
+                  </div>
+                  <div className="flex-grow">
+                    <h4 className="font-medium">{item.productTitle}</h4>
+                    <p className="text-sm text-muted-foreground">Quantity: {item.quantity}</p>
+                    <p className="text-sm font-medium">${parseFloat(item.price).toFixed(2)} each</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="border-t pt-4">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-lg font-bold">Total: ${parseFloat(order.total).toFixed(2)}</span>
+              </div>
+              <div className="text-sm text-muted-foreground space-y-1">
+                <p><strong>Order ID:</strong> {order.orderId}</p>
+                <p><strong>Tracking:</strong> {order.trackingNumber || 'Not available yet'}</p>
+              </div>
             </div>
           </div>
         </div>

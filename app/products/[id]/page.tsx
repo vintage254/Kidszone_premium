@@ -5,13 +5,13 @@ import { getProductById, getProductsByCategory } from "@/lib/actions/product.act
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from 'next/link';
-import { useAppContext } from '@/context/AppContext';
 import TiltedCard from "@/components/ui/tiltedcards";
 import { InteractiveHoverButton } from "@/components/ui/interactivebutton";
 import { toast } from 'sonner';
 import { Star, Heart, ChevronLeft, ChevronRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { BuyNowButton } from "@/components/products/BuyNowButton";
 
 interface ProductPageProps {
   params: { id: string };
@@ -22,6 +22,7 @@ interface Product {
   title: string;
   description: string;
   price: string;
+  filters: any;
   category: string;
   image1: string | null;
   image2: string | null;
@@ -36,15 +37,13 @@ const ProductPage = ({ params }: ProductPageProps) => {
   const [product, setProduct] = useState<Product | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [selectedSize, setSelectedSize] = useState('');
-  const [childAge, setChildAge] = useState('');
+  const [selectedFilters, setSelectedFilters] = useState<Record<string, string>>({});
+  const [cartVariations, setCartVariations] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [imageCarouselIndex, setImageCarouselIndex] = useState(0);
   const [relatedCarouselIndex, setRelatedCarouselIndex] = useState(0);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
-  
-  // Get cart context
-  const { addToCart, cartItems, currency } = useAppContext();
+  const [cartItemsCount, setCartItemsCount] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -91,7 +90,6 @@ const ProductPage = ({ params }: ProductPageProps) => {
   if (!product) return null;
 
   const images = [product.image1, product.image2, product.image3, product.image4].filter(Boolean) as string[];
-  const availableSizes = ['Small', 'Medium', 'Large', 'X-Large'];
   const rating = 4.5; // Mock rating
   const reviewCount = 441; // Mock review count
 
@@ -99,35 +97,38 @@ const ProductPage = ({ params }: ProductPageProps) => {
   const handleAddToCart = async () => {
     if (!product) return;
     
-    // Validation
-    if (!selectedSize) {
-      toast.error('Please select a size');
-      return;
-    }
-    
-    if (!childAge.trim()) {
-      toast.error('Please enter your child\'s age');
-      return;
-    }
-    
-    const age = parseInt(childAge);
-    if (isNaN(age) || age < 1 || age > 18) {
-      toast.error('Please enter a valid age between 1-18 years');
-      return;
+    // Validation - check if product has filters and if they're selected
+    if (product.filters && Array.isArray(product.filters) && product.filters.length > 0) {
+      for (const filter of product.filters) {
+        if (!selectedFilters[filter.name]) {
+          toast.error(`Please select a ${filter.name} before adding to cart`);
+          return;
+        }
+      }
     }
     
     setIsAddingToCart(true);
     
     try {
-      // Add to cart using the product ID and selected size
-      addToCart(product.id, selectedSize);
+      // Import the server action
+      const { addToCart: addToServerCart } = await import('@/lib/actions/order.actions');
       
-      // Show success message
-      toast.success(`${product.title} (${selectedSize}) added to cart!`);
+      // Add to cart using the server action with filters
+      const result = await addToServerCart(product.id, 1, selectedFilters);
       
-      // Optional: Reset form
-      setSelectedSize('');
-      setChildAge('');
+      if (result.success) {
+        const filterKey = Object.keys(selectedFilters).length > 0 
+          ? Object.entries(selectedFilters).map(([key, value]) => `${key}: ${value}`).join(', ')
+          : 'default';
+        setCartVariations(prev => ({
+          ...prev,
+          [filterKey]: (prev[filterKey] || 0) + 1
+        }));
+        toast.success(`${product.title} added to cart!`);
+        setCartItemsCount(prev => prev + 1);
+      } else {
+        toast.error(result.message || 'Failed to add item to cart');
+      }
       
     } catch (error) {
       console.error('Error adding to cart:', error);
@@ -139,8 +140,7 @@ const ProductPage = ({ params }: ProductPageProps) => {
 
   // Get cart count for this specific product
   const getProductCartCount = () => {
-    if (!product || !cartItems[product.id]) return 0;
-    return Object.values(cartItems[product.id]).reduce((total, qty) => total + qty, 0);
+    return cartItemsCount;
   };
 
   return (
@@ -242,64 +242,130 @@ const ProductPage = ({ params }: ProductPageProps) => {
             </p>
           </div>
 
-          {/* Size Selection */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Size</h3>
-            <div className="grid grid-cols-2 gap-3">
-              {availableSizes.map((size, index) => (
-                <button
-                  key={index}
-                  onClick={() => setSelectedSize(size)}
-                  className={`py-3 px-4 rounded-xl border-2 text-sm font-medium transition-all duration-200 hover:scale-[1.02] ${
-                    selectedSize === size 
-                      ? 'border-blue-500 bg-blue-50 text-blue-700' 
-                      : 'border-gray-200 hover:border-gray-300 text-gray-700'
-                  }`}
-                >
-                  {size}
-                </button>
-              ))}
+          {/* Dynamic Filters */}
+          {product.filters && product.filters.map((filter: any) => (
+            <div key={filter.name}>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">{filter.name}</h3>
+              <div className="grid grid-cols-2 gap-3">
+                {filter.options.map((option: string, index: number) => (
+                  <button
+                    key={index}
+                    onClick={() => setSelectedFilters(prev => ({ ...prev, [filter.name]: option }))}
+                    className={`py-3 px-4 rounded-xl border-2 text-sm font-medium transition-all duration-200 hover:scale-[1.02] ${
+                      selectedFilters[filter.name] === option
+                        ? 'border-blue-500 bg-blue-50 text-blue-700'
+                        : 'border-gray-200 hover:border-gray-300 text-gray-700'
+                    }`}
+                  >
+                    {option}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          ))}
 
-          {/* Child Age Input */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Child's Age</h3>
-            <div className="relative">
-              <input
-                type="number"
-                min="1"
-                max="18"
-                value={childAge}
-                onChange={(e) => setChildAge(e.target.value)}
-                placeholder="Enter child's age"
-                className="w-full py-3 px-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors duration-200"
-              />
-              <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">
-                years
-              </span>
+          {/* Current Selection Display */}
+          {Object.keys(selectedFilters).length > 0 && (
+            <div className="p-4 bg-gray-50 rounded-lg">
+              <h4 className="font-medium mb-2">Current Selection:</h4>
+              <div className="flex flex-wrap gap-2">
+                {Object.entries(selectedFilters).map(([key, value]) => (
+                  <span key={key} className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+                    {key}: {value}
+                  </span>
+                ))}
+              </div>
             </div>
-            <p className="text-sm text-gray-500 mt-2">
-              This helps us recommend the best fit for your child
-            </p>
-          </div>
+          )}
+
+          {/* Cart Variations Display */}
+          {Object.keys(cartVariations).length > 0 && (
+            <div className="p-4 bg-green-50 rounded-lg">
+              <h4 className="font-medium mb-3">In Your Cart:</h4>
+              <div className="space-y-2">
+                {Object.entries(cartVariations).map(([variation, quantity]) => (
+                  <div key={variation} className="flex items-center justify-between">
+                    <span className="text-sm text-gray-700">
+                      {variation === 'default' ? 'No filters' : variation}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        className="w-6 h-6 rounded-full bg-red-100 text-red-600 hover:bg-red-200 flex items-center justify-center text-sm font-bold"
+                        onClick={() => setCartVariations(prev => {
+                          const newVariations = { ...prev };
+                          if (newVariations[variation] > 1) {
+                            newVariations[variation]--;
+                          } else {
+                            delete newVariations[variation];
+                          }
+                          setCartItemsCount(prev => prev - 1);
+                          return newVariations;
+                        })}
+                      >
+                        -
+                      </button>
+                      <span className="w-8 text-center text-sm font-medium">{quantity}</span>
+                      <button
+                        className="w-6 h-6 rounded-full bg-green-100 text-green-600 hover:bg-green-200 flex items-center justify-center text-sm font-bold"
+                        onClick={async () => {
+                          try {
+                            // Parse the variation back to filters
+                            const filters = variation === 'default' ? {} : 
+                              variation.split(', ').reduce((acc, pair) => {
+                                const [key, value] = pair.split(': ');
+                                acc[key] = value;
+                                return acc;
+                              }, {} as Record<string, string>);
+                            
+                            const { addToCart: addToServerCart } = await import('@/lib/actions/order.actions');
+                            const result = await addToServerCart(product.id, 1, filters);
+                            
+                            if (result.success) {
+                              setCartVariations(prev => ({
+                                ...prev,
+                                [variation]: (prev[variation] || 0) + 1
+                              }));
+                              setCartItemsCount(prev => prev + 1);
+                              toast.success('Item added to cart!');
+                            } else {
+                              toast.error(result.message || 'Failed to add item to cart');
+                            }
+                          } catch (error) {
+                            console.error('Error adding to cart:', error);
+                            toast.error('Failed to add item to cart');
+                          }
+                        }}
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Action Buttons */}
           <div className="space-y-4">
             <button 
               onClick={handleAddToCart}
               disabled={isAddingToCart || loading}
-              className="px-8 py-3 bg-gradient-to-r from-orange-400 to-pink-500 text-white rounded-full font-medium hover:shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              className="w-full px-8 py-3 bg-gradient-to-r from-orange-400 to-pink-500 text-white rounded-full font-medium hover:shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
-              {isAddingToCart ? 'Adding...' : 'Add to basket'}
+              {isAddingToCart ? 'Adding...' : 'Add to Cart'}
               {getProductCartCount() > 0 && (
                 <span className="ml-2 bg-white text-orange-500 px-2 py-1 rounded-full text-sm font-bold">
                   {getProductCartCount()}
                 </span>
               )}
             </button>
+            <BuyNowButton 
+              productId={product.id} 
+              product={product}
+              selectedFilters={selectedFilters}
+            />
             <Link href="/cart">
-              <button className="px-8 py-3 bg-gray-800 text-white rounded-full font-medium hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+              <button className="w-full px-8 py-3 bg-gray-800 text-white rounded-full font-medium hover:shadow-lg transition-all duration-300 transform hover:scale-105">
                 View Cart ({getProductCartCount()})
               </button>
             </Link>
@@ -385,7 +451,7 @@ const ProductPage = ({ params }: ProductPageProps) => {
               </svg>
             </div>
             <p className="text-lg font-medium text-gray-600 mb-2">
-              No other products in {product.category}
+              No more products in this category
             </p>
             <p className="text-gray-500">
               This is the only product in this category right now.

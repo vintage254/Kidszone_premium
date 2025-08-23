@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { getUserByClerkId } from '@/lib/services/user.service';
 import { db } from '@/database/drizzle';
-import { orders, products } from '@/database/schema';
+import { orders, orderItems, products, cart } from '@/database/schema';
 import { eq } from 'drizzle-orm';
 import { stripe } from '@/lib/stripe';
 
@@ -28,8 +28,9 @@ export async function POST(request: NextRequest) {
 
     // Build line items from DB to avoid trusting client prices
     const line_items: any[] = [];
-    const insertedOrderIds: string[] = [];
+    let totalAmount = 0;
 
+    // Calculate total first
     for (const item of cartItems) {
       const productId = item.productId as string | undefined;
       const quantity = Number(item.quantity) || 1;
@@ -38,13 +39,8 @@ export async function POST(request: NextRequest) {
       const product = await db.query.products.findFirst({ where: eq(products.id, productId) });
       if (!product) continue;
 
-      // Insert a pending order for this product
-      const [newOrder] = await db.insert(orders).values({
-        userId: dbUser.id,
-        productId: product.id,
-        status: 'PENDING',
-      }).returning();
-      insertedOrderIds.push(newOrder.id);
+      const itemTotal = parseFloat(product.price as unknown as string) * quantity;
+      totalAmount += itemTotal;
 
       line_items.push({
         price_data: {
@@ -58,6 +54,33 @@ export async function POST(request: NextRequest) {
         quantity,
       });
     }
+
+    // Create single order for all items
+    const [newOrder] = await db.insert(orders).values({
+      userId: dbUser.id,
+      total: totalAmount.toFixed(2),
+      status: 'PAID',
+    }).returning();
+
+    // Create order items
+    for (const item of cartItems) {
+      const productId = item.productId as string | undefined;
+      const quantity = Number(item.quantity) || 1;
+      if (!productId) continue;
+
+      const product = await db.query.products.findFirst({ where: eq(products.id, productId) });
+      if (!product) continue;
+
+      await db.insert(orderItems).values({
+        orderId: newOrder.id,
+        productId,
+        quantity,
+        price: product.price,
+      });
+    }
+
+    // Clear user's cart after creating the order
+    await db.delete(cart).where(eq(cart.userId, dbUser.id));
 
     if (line_items.length === 0) {
       return NextResponse.json({ error: 'No valid products in cart' }, { status: 400 });
@@ -77,11 +100,11 @@ export async function POST(request: NextRequest) {
       },
       payment_intent_data: {
         metadata: {
-          orderIds: JSON.stringify(insertedOrderIds),
+          orderId: newOrder.id,
         },
       },
       metadata: {
-        orderIds: JSON.stringify(insertedOrderIds),
+        orderId: newOrder.id,
       },
     });
 

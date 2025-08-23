@@ -5,24 +5,20 @@ import React, { useState, useEffect } from 'react';
 import { assets } from '../assets/assets';
 import Link from 'next/link';
 import { UserButton, useUser, SignedIn, SignedOut, SignInButton, SignUpButton } from '@clerk/nextjs';
-import { useAppContext } from '@/context/AppContext';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { ShoppingBag } from 'lucide-react';
 import { ShimmerButton } from '@/components/ui/shimmerbutton';
-
-interface AppContext {
-  isSeller: boolean;
-  router: any;
-  getCartCount: () => number;
-  userData: any;
-}
+import { getCart } from '@/lib/actions/order.actions';
+import { getCurrentUser } from '@/lib/services/user.service';
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [cartItemsCount, setCartItemsCount] = useState(0);
+  const [isAdmin, setIsAdmin] = useState(false);
   const pathname = usePathname();
-  
-  const { router, getCartCount, isSeller }: AppContext = useAppContext();
+  const { user } = useUser();
+  const router = useRouter();
   
   // Get current active menu based on pathname
   const getCurrentMenu = () => {
@@ -30,10 +26,32 @@ const Navbar = () => {
     if (pathname.startsWith('/products')) return 'products';
     if (pathname.startsWith('/about')) return 'about';
     if (pathname.startsWith('/contact')) return 'contact';
+    if (pathname.startsWith('/orders')) return 'orders';
+    if (pathname.startsWith('/tracking')) return 'tracking';
     return 'home';
   };
   
   const menu = getCurrentMenu();
+
+  // Fetch cart count and user role
+  useEffect(() => {
+    const fetchData = async () => {
+      if (user) {
+        // Fetch cart count
+        const cartResult = await getCart();
+        if (cartResult.success && cartResult.data) {
+          const totalItems = cartResult.data.reduce((total, item) => total + item.quantity, 0);
+          setCartItemsCount(totalItems);
+        }
+        
+        // Fetch user role from database
+        const dbUser = await getCurrentUser();
+        setIsAdmin(dbUser?.role === 'ADMIN' || dbUser?.role === 'SELLER');
+      }
+    };
+    
+    fetchData();
+  }, [user]);
 
   // Handle scroll effect
   useEffect(() => {
@@ -82,7 +100,7 @@ const Navbar = () => {
             <div className="relative overflow-hidden rounded-xl">
               <Image 
                 className="w-12 h-auto transition-transform duration-300 group-hover:scale-110" 
-                src="/images/Kidz-logo.png" 
+                src="/images/logo.jpg" 
                 alt="KidsZone Logo" 
                 width={48} 
                 height={48} 
@@ -99,7 +117,8 @@ const Navbar = () => {
               { name: 'Home', key: 'home', path: '/' },
               { name: 'Products', key: 'products', path: '/products' },
               { name: 'About us', key: 'about', path: '/about' },
-              { name: 'Contact us', key: 'contact', path: '/contact' }
+              { name: 'Contact us', key: 'contact', path: '/contact' },
+              { name: 'Track your order', key: 'track', path: '/tracking' },
             ].map((item, index) => (
               <li key={item.key} className="relative">
                 <button
@@ -192,15 +211,15 @@ const Navbar = () => {
                   width={24} 
                   height={24} 
                 />
-                {getCartCount() > 0 && (
+                {cartItemsCount > 0 && (
                   <div className="absolute -top-1 -right-1 w-5 h-5 bg-orange-600 rounded-full flex justify-center items-center text-white text-xs font-bold animate-pulse">
-                    {getCartCount()}
+                    {cartItemsCount}
                   </div>
                 )}
               </button>
 
               {/* Admin dashboard link for admin users */}
-              {isSeller && (
+              {isAdmin && (
                 <button 
                   onClick={() => router.push('/admin')} 
                   className="px-6 py-2 rounded-full bg-orange-600 text-white hover:bg-orange-700 transition-all duration-300 hover:scale-105 hover:shadow-lg font-medium"
@@ -252,7 +271,8 @@ const Navbar = () => {
               { name: 'Home', key: 'home', path: '/' },
               { name: 'Products', key: 'products', path: '/products' },
               { name: 'About us', key: 'about', path: '/about' },
-              { name: 'Contact us', key: 'contact', path: '/contact' }
+              { name: 'Contact us', key: 'contact', path: '/contact' },
+              { name: 'Track your order', key: 'track', path: '/tracking' },
             ].map((item, index) => (
               <button
                 key={item.key}
@@ -272,7 +292,7 @@ const Navbar = () => {
 
             {/* Divider */}
             <div className="pt-4 mt-4 border-t border-gray-200 space-y-4">
-              {/* Cart and Admin buttons */}
+              {/* Cart button */}
               <div className="flex items-center justify-between px-4">
                 <button 
                   onClick={() => router.push('/cart')} 
@@ -281,19 +301,19 @@ const Navbar = () => {
                   <Image 
                     className="w-6 h-auto" 
                     src={assets.cart_icon} 
-                    alt="Cart" 
-                    width={24} 
-                    height={24} 
+                    alt="Cart"
+                    width={24}
+                    height={24}
                   />
                   <span className='text-gray-700 font-medium'>Cart</span>
-                  {getCartCount() > 0 && (
+                  {cartItemsCount > 0 && (
                     <div className="w-5 h-5 bg-orange-600 rounded-full flex justify-center items-center text-white text-xs font-bold">
-                      {getCartCount()}
+                      {cartItemsCount}
                     </div>
                   )}
                 </button>
 
-                {isSeller && (
+                {isAdmin && (
                   <button 
                     onClick={() => router.push('/admin')} 
                     className="px-4 py-2 rounded-full bg-orange-500 text-white hover:bg-orange-600 transition-all duration-300 font-medium text-sm"
@@ -303,40 +323,38 @@ const Navbar = () => {
                 )}
               </div>
 
-              {/* Auth buttons */}
-              <div className="px-4">
-                <SignedIn>
-                  <div className="flex items-center justify-center py-2">
-                    <UserButton afterSignOutUrl="/">
-                      <UserButton.MenuItems>
-                        <UserButton.Link href="/orders" label="Order history" labelIcon={<ShoppingBag size={16} />} />
-                      </UserButton.MenuItems>
-                    </UserButton>
-                  </div>
-                </SignedIn>
-                <SignedOut>
-                  <div className="flex flex-col gap-3 pt-2">
-                    <SignInButton mode="modal">
-                      <ShimmerButton 
-                        className="w-full px-6 py-3 text-sm font-medium"
-                        background="rgba(243, 244, 246, 1)"
-                        shimmerColor="#ffffff"
-                      >
-                        <span className="text-gray-800">Sign In</span>
-                      </ShimmerButton>
-                    </SignInButton>
-                    <SignUpButton mode="modal">
-                      <ShimmerButton 
-                        className="w-full px-6 py-3 text-sm font-medium"
-                        background="rgba(234, 88, 12, 1)"
-                        shimmerColor="#ffffff"
-                      >
-                        Sign Up
-                      </ShimmerButton>
-                    </SignUpButton>
-                  </div>
-                </SignedOut>
-              </div>
+              {/* Auth section */}
+              <SignedIn>
+                <div className="flex items-center justify-center py-2">
+                  <UserButton afterSignOutUrl="/">
+                    <UserButton.MenuItems>
+                      <UserButton.Link href="/orders" label="Order history" labelIcon={<ShoppingBag size={16} />} />
+                    </UserButton.MenuItems>
+                  </UserButton>
+                </div>
+              </SignedIn>
+              <SignedOut>
+                <div className="flex flex-col gap-3 pt-2">
+                  <SignInButton mode="modal">
+                    <ShimmerButton 
+                      className="w-full px-6 py-3 text-sm font-medium"
+                      background="rgba(243, 244, 246, 1)"
+                      shimmerColor="#ffffff"
+                    >
+                      <span className="text-gray-800">Sign In</span>
+                    </ShimmerButton>
+                  </SignInButton>
+                  <SignUpButton mode="modal">
+                    <ShimmerButton 
+                      className="w-full px-6 py-3 text-sm font-medium"
+                      background="rgba(234, 88, 12, 1)"
+                      shimmerColor="#ffffff"
+                    >
+                      Sign Up
+                    </ShimmerButton>
+                  </SignUpButton>
+                </div>
+              </SignedOut>
             </div>
           </div>
         </div>

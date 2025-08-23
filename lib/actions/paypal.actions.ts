@@ -3,11 +3,13 @@
 import { auth } from "@clerk/nextjs/server";
 import { getUserByClerkId } from "@/lib/services/user.service";
 import { db } from "@/database/drizzle";
-import { orders, products } from "@/database/schema";
+import { orders, orderItems, products } from "@/database/schema";
 import { eq } from "drizzle-orm";
 
 const { PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET } = process.env;
-const base = "https://api-m.sandbox.paypal.com";
+const base = process.env.NODE_ENV === 'production' 
+  ? "https://api-m.paypal.com" 
+  : "https://api-m.sandbox.paypal.com";
 
 /**
  * Generate an OAuth 2.0 access token for authenticating with PayPal REST APIs.
@@ -41,7 +43,7 @@ const generateAccessToken = async () => {
  * Create an order with PayPal.
  * @see https://developer.paypal.com/docs/api/orders/v2/#orders_create
  */
-export const createPaypalOrder = async (productId: string) => {
+export const createPaypalOrder = async (productId: string, quantity = 1, filters?: Record<string, string>) => {
   const { userId: clerkUserId } = await auth();
 
   if (!clerkUserId) {
@@ -62,13 +64,23 @@ export const createPaypalOrder = async (productId: string) => {
     return { success: false, message: "Product not found." };
   }
 
+  const total = (parseFloat(product.price) * quantity).toFixed(2);
+
   let newOrder;
   try {
     [newOrder] = await db.insert(orders).values({
       userId: dbUser.id,
-      productId,
-      status: 'PENDING',
+      total,
+      status: 'PAID',
     }).returning();
+
+    // Create order item
+    await db.insert(orderItems).values({
+      orderId: newOrder.id,
+      productId,
+      quantity,
+      price: product.price,
+    });
   } catch (error) {
     console.error("Database Error:", error);
     return { success: false, message: "Database Error: Failed to create order." };
@@ -82,7 +94,7 @@ export const createPaypalOrder = async (productId: string) => {
       {
         amount: {
           currency_code: "USD",
-          value: product.price,
+          value: total,
         },
         custom_id: newOrder.id, // Pass our order ID to PayPal
       },
@@ -131,7 +143,10 @@ export const capturePaypalOrder = async (paypalOrderId: string) => {
       if (ourOrderId) {
         await db
           .update(orders)
-          .set({ status: 'PAID' })
+          .set({ 
+            status: 'PAID',
+            stripePaymentIntentId: paypalOrderId // Store PayPal order ID for reference
+          })
           .where(eq(orders.id, ourOrderId));
         return { success: true, data };
       } else {

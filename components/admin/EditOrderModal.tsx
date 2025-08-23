@@ -86,7 +86,7 @@ export const EditOrderModal = ({ order }: EditOrderModalProps) => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {orders.status.enumValues.map((status) => (
+                      {['SHIPPED', 'DELIVERED'].map((status) => (
                         <SelectItem key={status} value={status}>
                           {status}
                         </SelectItem>

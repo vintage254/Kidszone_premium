@@ -11,11 +11,15 @@ export interface Job {
 
 export type UserOrder = {
   orderId: string;
-  productTitle: string | null;
-  productImage: string | null;
-  status: "PENDING" | "PAID" | "SHIPPED" | "DELIVERED";
+  status: "PAID" | "SHIPPED" | "DELIVERED" | "FAILED";
   trackingNumber: string | null;
-  createdAt: string | null;
-  price: string | null;
+  createdAt: Date | null;
+  total: string;
+  items: {
+    productTitle: string;
+    productImage: string | null;
+    quantity: number;
+    price: string;
+  }[];
 };
 

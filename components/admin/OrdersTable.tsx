@@ -16,7 +16,7 @@ export type OrderData = {
   orderId: string;
   productTitle: string | null;
   customerEmail: string | null;
-  status: "PENDING" | "PAID" | "SHIPPED" | "DELIVERED";
+  status: "PAID" | "SHIPPED" | "DELIVERED" | "FAILED";
   trackingNumber: string | null;
   createdAt: string | null;
   price: string | null;
@@ -34,7 +34,7 @@ const getStatusVariant = (status: OrderData['status']) => {
       return 'secondary';
     case 'DELIVERED':
       return 'outline';
-    case 'PENDING':
+    case 'FAILED':
     default:
       return 'destructive';
   }

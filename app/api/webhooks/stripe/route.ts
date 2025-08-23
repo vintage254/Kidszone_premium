@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { stripe } from '@/lib/stripe';
 import { db } from '@/database/drizzle';
-import { orders } from '@/database/schema';
-import { inArray } from 'drizzle-orm';
+import { cart, orders } from '@/database/schema';
+import { eq, inArray } from 'drizzle-orm';
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
@@ -52,6 +52,18 @@ export async function POST(req: NextRequest) {
         .where(inArray(orders.id, orderIds));
       
       console.log(`Orders [${orderIds.join(', ')}] marked as PAID.`);
+
+      // Also clear the user's cart for these orders (in case it wasn't cleared earlier)
+      const owningOrders = await db
+        .select({ userId: orders.userId })
+        .from(orders)
+        .where(inArray(orders.id, orderIds));
+
+      const userIds = Array.from(new Set(owningOrders.map(o => o.userId).filter(Boolean)));
+      if (userIds.length > 0) {
+        await db.delete(cart).where(inArray(cart.userId, userIds as string[]));
+        console.log(`Cleared cart for users [${userIds.join(', ')}] after payment success.`);
+      }
     } catch (dbError) {
       console.error(`Database Error: Failed to update orders [${orderIds.join(', ')}]`, dbError);
       return new NextResponse('Database Error', { status: 500 });

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useAppContext } from "@/context/AppContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { clearUserCart } from "@/lib/actions/order.actions";
 
 const CheckoutSuccessContent = () => {
   const router = useRouter();
@@ -20,6 +21,14 @@ const CheckoutSuccessContent = () => {
       setSessionId(id);
       // Clear the cart once after successful payment
       clearCart();
+      // Also clear the server-side cart for the authenticated user
+      (async () => {
+        try {
+          await clearUserCart();
+        } catch (e) {
+          console.error('Failed to clear DB cart after success:', e);
+        }
+      })();
       clearedRef.current = true;
     }
     // Depend on searchParams only; ref prevents repeated clearing even if this runs again

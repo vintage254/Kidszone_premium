@@ -17,7 +17,7 @@ const Sidebar = () => {
       <div>
         <Link href="/" className="logo">
           <Image
-            src="/images/Kidz-logo.png"
+            src="/images/logo.jpg"
             alt="logo"
             height={37}
             width={37}
