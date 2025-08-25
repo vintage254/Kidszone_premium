@@ -35,7 +35,6 @@ export default function CartPage() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [removing, setRemoving] = useState<string | null>(null);
-  const [checkingOut, setCheckingOut] = useState(false);
 
   useEffect(() => {
     async function fetchCart() {
@@ -77,39 +76,6 @@ export default function CartPage() {
     }
   };
 
-  const handleCheckout = async () => {
-    setCheckingOut(true);
-    try {
-      const cartItemsForCheckout = cartItems
-        .filter((item) => item.product)
-        .map((item) => ({
-          productId: item.product!.id,
-          quantity: item.quantity,
-        }));
-
-      const response = await fetch("/api/stripe/create-checkout-session", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ cartItems: cartItemsForCheckout }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.url) {
-        // Redirect to Stripe Checkout
-        window.location.href = data.url;
-      } else {
-        toast.error(data.error || "Failed to create checkout session");
-      }
-    } catch (error) {
-      console.error("Checkout error:", error);
-      toast.error("An error occurred during checkout");
-    } finally {
-      setCheckingOut(false);
-    }
-  };
 
   const calculateTotal = () => {
     return cartItems.reduce((total, item) => {
@@ -166,7 +132,7 @@ export default function CartPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Cart Items */}
-            <div className="lg:col-span-2">
+            <div className="lg:col-span-2 space-y-6">
               <div className="bg-white rounded-lg shadow-sm">
                 {cartItems.map((item) => (
                   <div
@@ -224,10 +190,9 @@ export default function CartPage() {
                 ))}
               </div>
             </div>
-          </div>
 
-          {/* Order Summary & Checkout */}
-          <div className="lg:col-span-1">
+            {/* Order Summary & Checkout */}
+            <div className="lg:col-span-1">
             <div className="bg-white rounded-lg shadow-sm p-6 sticky top-6">
               <h2 className="text-xl font-bold mb-4">Order Summary</h2>
               <div className="space-y-2 mb-4">
@@ -236,31 +201,33 @@ export default function CartPage() {
                   <span>${total.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Shipping</span>
-                  <span>Free</span>
+                  <span>Shipping (US)</span>
+                  <span>$100.00</span>
                 </div>
                 <div className="border-t pt-2">
                   <div className="flex justify-between font-bold text-lg">
                     <span>Total</span>
-                    <span>${total.toFixed(2)}</span>
+                    <span>${(total + 100).toFixed(2)}</span>
                   </div>
                 </div>
               </div>
 
               <div className="space-y-4">
-                <Button
-                  onClick={handleCheckout}
-                  disabled={checkingOut || cartItems.length === 0}
-                  className="w-full bg-orange-600 hover:bg-orange-700"
-                >
-                  {checkingOut ? "Processing..." : "Proceed to Checkout"}
-                </Button>
+                <Link href="/shipping">
+                  <Button
+                    disabled={cartItems.length === 0}
+                    className="w-full bg-orange-600 hover:bg-orange-700"
+                  >
+                    Proceed to Checkout
+                  </Button>
+                </Link>
                 <Link href="/products">
                   <Button variant="outline" className="w-full">
                     Continue Shopping
                   </Button>
                 </Link>
               </div>
+            </div>
             </div>
           </div>
         </div>

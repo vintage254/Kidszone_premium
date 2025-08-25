@@ -37,9 +37,9 @@ const socialLinks = [
 ];
 
 const contactInfo = [
-  { icon: <Mail className="h-4 w-4" />, text: 'hello@kidszoneplus.com', href: 'mailto:hello@kidszoneplus.com' },
-  { icon: <Phone className="h-4 w-4" />, text: '+254 712 345 678', href: 'tel:+254712345678' },
-  { icon: <MapPin className="h-4 w-4" />, text: 'Nairobi, Kenya', href: '#' },
+  { icon: <Mail className="h-4 w-4" />, text: 'info@kidszonenatick.com', href: 'mailto:info@kidszonenatick.com' },
+  { icon: <Phone className="h-4 w-4" />, text: '(508) 655-4800', href: 'tel:+15086554800' },
+  { icon: <MapPin className="h-4 w-4" />, text: '1245 Worcester St, Natick MA', href: 'https://www.google.com/maps?daddr=1245+Worcester+Street+Natick+MA+01760' },
 ];
 
 const Footer = () => {
@@ -99,7 +99,7 @@ const Footer = () => {
                 </span>
               </div>
               <p className="text-gray-600 mb-6 leading-relaxed">
-                Your trusted partner for quality baby and kids' products in Kenya since 2020. We specialize in safe, comfortable, and innovative baby gear for families worldwide.
+                Your trusted partner for quality baby and kids' products in Massachusetts since 2020. Located in Natick Mall, we specialize in safe, comfortable, and innovative baby gear for families worldwide.
               </p>
               
               {/* Contact Info */}
@@ -201,7 +201,7 @@ const Footer = () => {
                   &copy; {new Date().getFullYear()} KidsZone Premium. All rights reserved.
                 </p>
                 <div className="flex items-center text-xs text-gray-500 space-x-4">
-                  <span>🇰🇪 Made in Kenya</span>
+                  <span>🇺🇸 Located in USA</span>
                   <span>🌍 Worldwide Shipping</span>
                   <span>✅ 4+ Years Trusted</span>
                 </div>

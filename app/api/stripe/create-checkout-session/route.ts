@@ -8,7 +8,7 @@ import { stripe } from '@/lib/stripe';
 
 export async function POST(request: NextRequest) {
   try {
-    const { cartItems } = await request.json();
+    const { cartItems, shippingInfo } = await request.json();
 
     // Require authentication
     const { userId: clerkUserId } = await auth();
@@ -55,11 +55,26 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Create single order for all items
+    // Add shipping for US addresses
+    const shippingCost = 100; // $100 shipping for US
+    line_items.push({
+      price_data: {
+        currency: 'usd',
+        product_data: {
+          name: 'Shipping (US)',
+          description: 'Standard shipping within the United States',
+        },
+        unit_amount: shippingCost * 100, // Convert to cents
+      },
+      quantity: 1,
+    });
+    totalAmount += shippingCost;
+
+    // Create order in database first with PENDING status
     const [newOrder] = await db.insert(orders).values({
       userId: dbUser.id,
       total: totalAmount.toFixed(2),
-      status: 'PAID',
+      status: 'PENDING', // Will be updated to PAID by webhook after successful payment
     }).returning();
 
     // Create order items
@@ -79,8 +94,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Clear user's cart after creating the order
-    await db.delete(cart).where(eq(cart.userId, dbUser.id));
+    // Don't clear cart here - only clear after successful payment
 
     if (line_items.length === 0) {
       return NextResponse.json({ error: 'No valid products in cart' }, { status: 400 });
@@ -89,24 +103,62 @@ export async function POST(request: NextRequest) {
     const origin = request.headers.get('origin') ?? process.env.NEXT_PUBLIC_APP_URL ?? '';
 
     // Create Stripe Checkout Session
-    const session = await stripe.checkout.sessions.create({
+    const sessionConfig: any = {
       payment_method_types: ['card'],
       line_items,
       mode: 'payment',
       success_url: `${origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/checkout?canceled=true`,
-      shipping_address_collection: {
-        allowed_countries: ['US', 'CA'],
-      },
+      cancel_url: `${origin}/cart?canceled=true`,
       payment_intent_data: {
         metadata: {
           orderId: newOrder.id,
         },
+        currency: 'usd', // Force USD at payment intent level
       },
       metadata: {
         orderId: newOrder.id,
       },
-    });
+      locale: 'en',
+      billing_address_collection: 'required',
+      customer_creation: 'always',
+      // Force USD by not allowing currency conversion
+      allow_promotion_codes: false,
+      automatic_tax: { enabled: false },
+    };
+
+    // If shipping info is provided, pre-fill it; otherwise collect it
+    if (shippingInfo) {
+      sessionConfig.customer_email = shippingInfo.email;
+      sessionConfig.shipping_options = [
+        {
+          shipping_rate_data: {
+            type: 'fixed_amount',
+            fixed_amount: {
+              amount: 10000, // $100 in cents
+              currency: 'usd',
+            },
+            display_name: 'Standard Shipping (US)',
+            delivery_estimate: {
+              minimum: {
+                unit: 'business_day',
+                value: 5,
+              },
+              maximum: {
+                unit: 'business_day',
+                value: 10,
+              },
+            },
+          },
+        },
+      ];
+      // Don't set shipping_address_collection when we have shipping info
+    } else {
+      sessionConfig.shipping_address_collection = {
+        allowed_countries: ['US'],
+      };
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionConfig);
 
     return NextResponse.json({ sessionId: session.id, url: session.url });
   } catch (error) {

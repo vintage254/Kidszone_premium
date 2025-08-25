@@ -29,32 +29,19 @@ export const BuyNowButton = ({ productId, product, selectedFilters }: BuyNowButt
 
     startTransition(async () => {
       try {
-        // Create checkout session directly for this product
-        const response = await fetch('/api/stripe/create-checkout-session', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ 
-            cartItems: [{ 
-              productId: productId, 
-              quantity: 1 
-            }] 
-          }),
-        });
-
-        const data = await response.json();
-
-        if (response.ok && data.url) {
-          toast.success("Redirecting to checkout...");
-          // Redirect to Stripe Checkout
-          window.location.href = data.url;
+        // Add item to cart first
+        const result = await addToCart(productId, 1, selectedFilters || {});
+        
+        if (result.success) {
+          toast.success("Item added to cart!");
+          // Redirect to shipping page instead of direct checkout
+          router.push('/shipping');
         } else {
-          toast.error(data.error || 'Failed to create checkout session');
+          toast.error(result.message || 'Failed to add item to cart');
         }
       } catch (error) {
-        console.error('Checkout error:', error);
-        toast.error('An error occurred during checkout');
+        console.error('Buy now error:', error);
+        toast.error('An error occurred while processing your request');
       }
     });
   };

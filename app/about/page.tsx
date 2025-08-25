@@ -55,16 +55,16 @@ const AboutPage = () => {
                   </h1>
                   <div className="w-24 h-1 bg-orange-600 rounded-full mb-6"></div>
                   <p className="text-xl text-gray-600 leading-relaxed">
-                    Your trusted partner for quality baby and kids' products in Kenya since 2020!
+                    Your trusted partner for quality baby and kids' products in Massachusetts since 2020!
                   </p>
                 </div>
                 
                 <div className="prose prose-lg max-w-none text-gray-600">
                   <p>
-                    At KidsZone, we specialize in safe, comfortable, and innovative baby gear, from premium carriers to interactive toys, designed to make parenting easier and more joyful.
+                    Located in the heart of Natick Mall, KidsZone specializes in safe, comfortable, and innovative baby gear, from premium carriers to interactive toys, designed to make parenting easier and more joyful.
                   </p>
                   <p>
-                    With 4 years of experience, we've delivered smiles to families not just in Kenya, but worldwide.
+                    With 4 years of experience, we've delivered smiles to families across the USA and worldwide, offering both convenient mall pickup and international shipping.
                   </p>
                 </div>
               </div>

@@ -41,7 +41,7 @@ export default function ContactUs() {
         },
         body: JSON.stringify({
           ...formData,
-          to: 'test@kidszone.co.ke' // Your test email
+          to: 'info@kidszonenatick.com' // Your business email
         })
       });
 
@@ -97,7 +97,7 @@ export default function ContactUs() {
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Email Us</h3>
             <p className="text-gray-600 mb-3">Send us a message anytime</p>
-            <p className="text-blue-600 font-medium">test@kidszone.co.ke</p>
+            <p className="text-blue-600 font-medium">info@kidszonenatick.com</p>
             <p className="text-sm text-gray-500 mt-1">We respond within 24 hours</p>
           </div>
 
@@ -107,8 +107,8 @@ export default function ContactUs() {
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Call Us</h3>
             <p className="text-gray-600 mb-3">Speak to our team</p>
-            <p className="text-green-600 font-medium">+254 XXX XXX XXX</p>
-            <p className="text-sm text-gray-500 mt-1">Mon-Sat, 9AM-6PM EAT</p>
+            <p className="text-green-600 font-medium">(508) 655-4800</p>
+            <p className="text-sm text-gray-500 mt-1">Mon-Sat, 10AM-9PM EST</p>
           </div>
 
           <div className="bg-white rounded-lg shadow-sm border p-6 text-center hover:shadow-md transition-shadow">
@@ -116,9 +116,9 @@ export default function ContactUs() {
               <MapPin className="h-6 w-6 text-red-600" />
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Visit Us</h3>
-            <p className="text-gray-600 mb-3">Located in Kenya</p>
-            <p className="text-red-600 font-medium">Nairobi, Kenya</p>
-            <p className="text-sm text-gray-500 mt-1">Serving Kenya & Worldwide</p>
+            <p className="text-gray-600 mb-3">Located in Natick Mall</p>
+            <p className="text-red-600 font-medium">1245 Worcester Street, Natick MA 01760</p>
+            <p className="text-sm text-gray-500 mt-1">Serving USA & Worldwide</p>
           </div>
         </div>
 
@@ -194,7 +194,7 @@ export default function ContactUs() {
                   value={formData.phone}
                   onChange={handleInputChange}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                  placeholder="+254 XXX XXX XXX"
+                  placeholder="(508) 555-0123"
                 />
               </div>
 
@@ -264,13 +264,13 @@ export default function ContactUs() {
               <h2 className="text-2xl font-bold text-gray-900 mb-6">About KidsZone</h2>
               <div className="space-y-4 text-gray-600">
                 <p>
-                  Your trusted partner for quality baby and kids' products in Kenya since 2020! 
-                  At KidsZone, we specialize in safe, comfortable, and innovative baby gear, 
+                  Your trusted partner for quality baby and kids' products in Massachusetts since 2020! 
+                  Located in the heart of Natick Mall, KidsZone specializes in safe, comfortable, and innovative baby gear, 
                   from premium carriers to interactive toys.
                 </p>
                 <p>
-                  With 4 years of experience, we've delivered smiles to families not just in Kenya, 
-                  but worldwide. We ship internationally with tracking numbers and guarantee quality in every product.
+                  With 4 years of experience, we've delivered smiles to families across the USA and worldwide. 
+                  We offer convenient mall pickup and ship internationally with tracking numbers, guaranteeing quality in every product.
                 </p>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6 pt-6 border-t">

@@ -19,6 +19,7 @@ import {
 export const ROLE_ENUM = pgEnum("role", ["ADMIN", "USER", "SELLER"]);
 
 export const ORDER_STATUS_ENUM = pgEnum("order_status", [
+  "PENDING",
   "PAID",
   "SHIPPED",
   "DELIVERED",
